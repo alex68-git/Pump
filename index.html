@@ -1,227 +1,418 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Bybit Smart Fade Scanner PRO v9</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bybit Smart Fade Scanner PRO v10 (Fixed)</title>
 <style>
-:root{--bg:#0b0e11;--card:#161b22;--txt:#eaecef;--mut:#9ca3af;--g:#00C076;--r:#F6465D;--y:#F0B90B}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:14px -apple-system,BlinkMacSystemFont,sans-serif}
-.wrap{max-width:1100px;margin:auto;padding:14px}.top{display:flex;justify-content:space-between;align-items:center}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}.card{background:var(--card);border-radius:16px;padding:12px}
-.big{font-size:22px;font-weight:700}.row{display:flex;gap:8px;align-items:center}.btn{flex:1;padding:12px;border:0;border-radius:12px;font-weight:700;color:#fff}
-.g{background:var(--g)}.r{background:var(--r)}.y{background:var(--y);color:#111}
-.signal{background:#14181f;border-left:5px solid var(--r);border-radius:14px;padding:12px;margin:10px 0}
-.badge{padding:4px 8px;border-radius:999px;background:#222}.mut{color:var(--mut);font-size:12px}
-.bar{height:8px;background:#222;border-radius:999px;overflow:hidden}.fill{height:100%;background:var(--g);width:0}
-canvas{width:100%;height:140px;background:#0f1419;border-radius:10px}
-select{width:100%;padding:10px;border-radius:10px;background:#0f1419;color:#fff;border:1px solid #2b3139}
+:root {
+    --bg: #0b0e11; --card: #161b22; --txt: #eaecef; 
+    --mut: #9ca3af; --g: #00C076; --r: #F6465D; --y: #F0B90B;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--txt); font: 14px -apple-system, BlinkMacSystemFont, sans-serif; }
+.wrap { max-width: 1100px; margin: auto; padding: 14px; }
+.top { display: flex; justify-content: space-between; align-items: center; }
+.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0; }
+.card { background: var(--card); border-radius: 16px; padding: 12px; }
+.big { font-size: 22px; font-weight: 700; }
+.row { display: flex; gap: 8px; align-items: center; }
+.btn { flex: 1; padding: 12px; border: 0; border-radius: 12px; font-weight: 700; color: #fff; cursor: pointer; transition: 0.2s; }
+.btn:hover { filter: brightness(1.1); }
+.g { background: var(--g); } .r { background: var(--r); } .y { background: var(--y); color: #111; }
+.signal { background: #14181f; border-left: 5px solid var(--r); border-radius: 14px; padding: 12px; margin: 10px 0; animation: fadeIn 0.3s; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+.badge { padding: 4px 8px; border-radius: 999px; background: #222; font-weight: 600; }
+.mut { color: var(--mut); font-size: 12px; }
+.bar { height: 8px; background: #222; border-radius: 999px; overflow: hidden; }
+.fill { height: 100%; background: var(--r); width: 0%; transition: width 0.3s; }
+canvas { width: 100%; height: 140px; background: #0f1419; border-radius: 10px; }
+select { width: 100%; padding: 10px; border-radius: 10px; background: #0f1419; color: #fff; border: 1px solid #2b3139; outline: none; }
 </style>
 </head>
 <body>
 <div class="wrap">
-<div class="top"><h2>Smart Fade Scanner PRO v9</h2><div id="status" class="badge">OFFLINE</div></div>
+    <div class="top">
+        <h2>Smart Fade Scanner PRO v10</h2>
+        <div id="status" class="badge">OFFLINE</div>
+    </div>
 
-<div class="grid">
-<div class="card"><div id="coins" class="big">0</div><div class="mut">Coins</div></div>
-<div class="card"><div id="ws" class="big">0</div><div class="mut">WS</div></div>
-<div class="card"><div id="watch" class="big">0</div><div class="mut">Watching</div></div>
-<div class="card"><div id="sig" class="big">0</div><div class="mut">Signals</div></div>
+    <div class="grid">
+        <div class="card"><div id="coins" class="big">0</div><div class="mut">Coins Top</div></div>
+        <div class="card"><div id="ws" class="big">0</div><div class="mut">WS Subscriptions</div></div>
+        <div class="card"><div id="watch" class="big">0</div><div class="mut">In Watch</div></div>
+        <div class="card"><div id="sig" class="big">0</div><div class="mut">Signals</div></div>
+    </div>
+
+    <div class="row">
+        <button id="start" class="btn g">START</button>
+        <button id="stop" class="btn r">STOP</button>
+        <button id="clear" class="btn y">CLEAR</button>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+        <h3>Настройки сканирования</h3>
+        <div class="row">
+            <select id="mode">
+                <option value="70">Aggressive (Score > 70)</option>
+                <option value="78" selected>Balanced (Score > 78)</option>
+                <option value="88">Strict (Score > 88)</option>
+            </select>
+            <select id="watchSec">
+                <option value="60">Окно слежения: 60 сек</option>
+                <option value="120" selected>Окно слежения: 120 сек</option>
+                <option value="180">Окно слежения: 180 сек</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="row" style="justify-content:space-between; margin-bottom:8px">
+            <h3 style="margin:0">CVD монеты: <span id="cvdSymbol" style="color:var(--y)">---</span></h3>
+            <select id="cvdSelect" style="width: auto; padding: 4px 8px;"></select>
+        </div>
+        <canvas id="cvd" width="900" height="140"></canvas>
+    </div>
+
+    <div class="card">
+        <h3>Давление продавцов в ленте (Sell Imbalance)</h3>
+        <div class="bar"><div id="trap" class="fill"></div></div>
+    </div>
+
+    <h3>Активные сигналы</h3>
+    <div id="signals"></div>
 </div>
-
-<div class="row">
-<button id="start" class="btn g">START</button>
-<button id="stop" class="btn r">STOP</button>
-<button id="clear" class="btn y">CLEAR</button>
-</div>
-
-<div class="card" style="margin-top:12px">
-<h3>Режим</h3>
-<div class="row">
-<select id="mode"><option value="70">Aggressive</option><option value="78" selected>Balanced</option><option value="88">Strict</option></select>
-<select id="watchSec"><option>60</option><option selected>120</option><option>180</option></select>
-</div>
-</div>
-
-<div class="card"><h3>CVD (реальное время)</h3><canvas id="cvd" width="900" height="140"></canvas></div>
-<div class="card"><h3>Whale Trap</h3><div class="bar"><div id="trap" class="fill"></div></div></div>
-
-<h3>Активные сигналы</h3>
-<div id="signals"></div>
 
 <script>
-const CFG={REST:"https://api.bybit.com/v5/market/tickers?category=linear",WS:"wss://stream.bybit.com/v5/public/linear",MAX:100,BATCH:10,REPEAT:900000};
-const $=id=>document.getElementById(id);
+const CFG = {
+    REST: "https://api.bybit.com/v5/market/tickers?category=linear",
+    WS: "wss://stream.bybit.com/v5/public/linear",
+    MAX: 100,
+    BATCH: 10,
+    REPEAT: 900000,   // 15 минут паузы между повторными сигналами
+    RETEST_WINDOW: 300000 // 5 минут на ретест
+};
 
-class Scanner{
- constructor(){this.ws=null;this.symbols=[];this.market={};this.cvd=[];this.loop=null;}
- async start(){
-   if(this.ws)return;
-   await this.load();
-   this.connect();
-   this.loop=setInterval(()=>this.drawCVD(),500);
- }
- stop(){clearInterval(this.loop);if(this.ws){this.ws.close();this.ws=null;$("status").textContent="STOPPED";}}
- async load(){
-   const j=await(await fetch(CFG.REST)).json();
-   this.symbols=j.result.list.filter(x=>x.symbol.endsWith("USDT"))
-      .sort((a,b)=>+b.turnover24h-+a.turnover24h)
-      .slice(0,CFG.MAX).map(x=>x.symbol);
-   this.symbols.forEach(s=>this.market[s]={price:0,trades:[],candles:[],book:null,state:"IDLE",pumpHigh:0,pumpLow:0,pumpStart:0,lastSignal:0,retests:0});
-   $("coins").textContent=this.symbols.length;
- }
- connect(){
-   this.ws=new WebSocket(CFG.WS);
-   this.ws.onopen=()=>{$("status").textContent="ONLINE";this.subscribe()};
-   this.ws.onclose=()=>{$("status").textContent="RECONNECT";setTimeout(()=>this.connect(),3000)};
-   this.ws.onmessage=e=>this.onMsg(JSON.parse(e.data));
- }
- subscribe(){
-   let i=0;
-   const timer=setInterval(()=>{
-     if(i>=this.symbols.length)return clearInterval(timer);
-     const args=[];
-     this.symbols.slice(i,i+CFG.BATCH).forEach(s=>args.push("publicTrade."+s,"kline.1."+s,"orderbook.50."+s));
-     this.ws.send(JSON.stringify({op:"subscribe",args}));
-     $("ws").textContent=Math.min(CFG.MAX,i+CFG.BATCH);
-     i+=CFG.BATCH;
-   },250);
- }
- onMsg(m){
-   if(!m.topic)return;
-   const p=m.topic.split("."),type=p[0],sym=p[p.length-1],mk=this.market[sym];
-   if(!mk)return;
+const $ = id => document.getElementById(id);
 
-   if(type==="publicTrade"){
-      m.data.forEach(t=>{
-        mk.price=+t.p;
-        mk.trades.push({p:+t.p,v:+t.v,s:t.S,t:+t.T});
-        if(mk.trades.length>450)mk.trades.shift();
-        const last=this.cvd.length?this.cvd[this.cvd.length-1]:0;
-        this.cvd.push(last+(t.S==="Buy"?1:-1)*t.v);
-        if(this.cvd.length>300)this.cvd.shift();
-      });
-      this.onTradeEvent(sym);
-   }
+class Scanner {
+    constructor() {
+        this.ws = null;
+        this.symbols = [];
+        this.market = {};
+        this.loop = null;
+        this.activeCvdSymbol = null;
+    }
 
-   if(type==="kline"){
-      const k=m.data[0];
-      mk.candles.push({h:+k.high,l:+k.low,c:+k.close,v:+k.volume});
-      if(mk.candles.length>120)mk.candles.shift();
-   }
+    async start() {
+        if (this.ws) return;
+        await this.load();
+        this.connect();
+        this.loop = setInterval(() => this.drawCVD(), 500);
+    }
 
-   if(type==="orderbook")mk.book=m.data;
- }
- flow(m){
-   let buy=0,sell=0,n=Date.now();
-   m.trades.forEach(t=>{
-      if(n-t.t<10000){
-         const usd=t.p*t.v;
-         if(t.s==="Buy")buy+=usd; else sell+=usd;
-      }
-   });
-   return {buy,sell,ratio:sell/(buy||1)};
- }
- structure(c){
-   if(c.length<8)return false;
-   const a=c.at(-4),b=c.at(-2);
-   return b.h<a.h&&b.l<a.l;
- }
- dynamicWall(m){
-   if(!m.book||!m.book.a||!m.book.b)return 0;
-   const asks=m.book.a.slice(0,8).reduce((s,x)=>s+Number(x[1]),0);
-   const bids=m.book.b.slice(0,8).reduce((s,x)=>s+Number(x[1]),0);
-   return asks>bids*1.7?10:0;
- }
- score(m){
-   if(m.candles.length<20)return 0;
-   const last=m.candles.at(-1);
-   const avg=m.candles.slice(-20).reduce((s,x)=>s+x.v,0)/20||1;
-   const pump=(m.pumpHigh-m.pumpLow)/(m.pumpLow||1)*100;
-   const f=this.flow(m);
-   let s=0;
-   if(pump>8)s+=25;else if(pump>5)s+=18;
-   if(last.v>avg*3)s+=20;else if(last.v>avg*2)s+=12;
-   if(this.structure(m.candles))s+=25;
-   if(f.ratio>2)s+=20;else if(f.ratio>1.5)s+=10;
-   s+=this.dynamicWall(m);
-   return Math.min(100,s);
- }
- render(sym,m,score,retest=false){
-   const e=m.price,sl=m.pumpHigh*1.002,R=sl-e,tp1=e-R,tp2=e-R*2;
-   const div=document.createElement("div");
-   div.className="signal";
-   div.innerHTML=`<div class="row" style="justify-content:space-between"><b>${retest?"🔁 RETEST":"🔴 SHORT"} ${sym}</b><span>${score}/100</span></div>
-   <div class="mut">Entry ${e.toFixed(5)} • SL ${sl.toFixed(5)}</div>
-   <div class="mut">TP1 ${tp1.toFixed(5)} • TP2 ${tp2.toFixed(5)}</div>
-   <div class="mut">Whale Trap • Dynamic Wall • CVD</div>`;
-   $("signals").prepend(div);
-   $("sig").textContent=+$("sig").textContent+1;
-   try{
-      if(window.AudioContext||window.webkitAudioContext){
-        const ctx=new(window.AudioContext||window.webkitAudioContext)();
-        const o=ctx.createOscillator(),g=ctx.createGain();
-        o.frequency.value=retest?660:880;
-        o.connect(g);g.connect(ctx.destination);g.gain.value=.03;
-        o.start();o.stop(ctx.currentTime+.12);
-      }
-   }catch(e){}
- }
- onTradeEvent(sym){
-   const m=this.market[sym];
-   if(m.candles.length<20)return;
-   const last=m.candles.at(-1),c5=m.candles.at(-6);
-   const pump=(last.c-c5.c)/c5.c*100;
+    stop() {
+        clearInterval(this.loop);
+        if (this.ws) {
+            this.ws.onclose = null;
+            this.ws.close();
+            this.ws = null;
+            $("status").textContent = "STOPPED";
+            $("status").style.color = "#F6465D";
+        }
+    }
 
-   if(pump>5&&m.state==="IDLE"){
-      m.state="WATCH";
-      m.pumpHigh=last.h;
-      m.pumpLow=c5.l;
-      m.pumpStart=Date.now();
-   }
+    async load() {
+        try {
+            const res = await fetch(CFG.REST);
+            const j = await res.json();
+            this.symbols = j.result.list
+                .filter(x => x.symbol.endsWith("USDT") && parseFloat(x.turnover24h) > 0)
+                .sort((a, b) => +b.turnover24h - +a.turnover24h)
+                .slice(0, CFG.MAX)
+                .map(x => x.symbol);
 
-   if(m.state!=="WATCH")return;
+            this.symbols.forEach(s => {
+                this.market[s] = {
+                    price: 0,
+                    trades: [],
+                    candles: [],
+                    bids: new Map(), // Правильное хранение стакана
+                    asks: new Map(),
+                    cvd: [],        // ИЗОЛИРОВАННЫЙ CVD ДЛЯ КАЖДОЙ МОНЕТЫ
+                    state: "IDLE",
+                    pumpHigh: 0,
+                    pumpLow: 0,
+                    pumpStart: 0,
+                    lastSignal: 0,
+                    retests: 0
+                };
+            });
 
-   if(Date.now()-m.pumpStart>+$("watchSec").value*1000){
-      m.state="IDLE";
-      return;
-   }
+            $("coins").textContent = this.symbols.length;
+            this.updateCvdDropdown();
+        } catch(e) {
+            $("status").textContent = "REST ERROR";
+        }
+    }
 
-   const score=this.score(m);
-   $("watch").textContent=Object.values(this.market).filter(x=>x.state==="WATCH").length;
-   $("trap").style.width=Math.min(100,this.flow(m).ratio*25)+"%";
+    updateCvdDropdown() {
+        const sel = $("cvdSelect");
+        sel.innerHTML = '<option value="">-- Выбрать монету --</option>';
+        this.symbols.forEach(s => {
+            const opt = document.createElement("option");
+            opt.value = s;
+            opt.textContent = s;
+            sel.appendChild(opt);
+        });
+        sel.onchange = (e) => {
+            if (e.target.value) this.activeCvdSymbol = e.target.value;
+        };
+    }
 
-   if(score<+$("mode").value)return;
-   if(!this.structure(m.candles))return;
+    connect() {
+        this.ws = new WebSocket(CFG.WS);
+        this.ws.onopen = () => {
+            $("status").textContent = "ONLINE";
+            $("status").style.color = "#00C076";
+            this.subscribe();
+        };
+        this.ws.onclose = () => {
+            $("status").textContent = "RECONNECTING";
+            $("status").style.color = "#F0B90B";
+            setTimeout(() => { if ($("status").textContent !== "STOPPED") this.connect(); }, 3000);
+        };
+        this.ws.onmessage = e => this.onMsg(JSON.parse(e.data));
+    }
 
-   if(Date.now()-m.lastSignal>CFG.REPEAT){
-      m.lastSignal=Date.now();
-      m.retests=0;
-      this.render(sym,m,score,false);
-      return;
-   }
+    subscribe() {
+        let i = 0;
+        const timer = setInterval(() => {
+            if (i >= this.symbols.length || !this.ws || this.ws.readyState !== WebSocket.OPEN) {
+                return clearInterval(timer);
+            }
+            const args = [];
+            // Используем depth 25 для снижения нагрузки
+            this.symbols.slice(i, i + CFG.BATCH).forEach(s => {
+                args.push("publicTrade." + s, "kline.1." + s, "orderbook.25." + s);
+            });
+            this.ws.send(JSON.stringify({ op: "subscribe", args }));
+            $("ws").textContent = Math.min(CFG.MAX, i + CFG.BATCH);
+            i += CFG.BATCH;
+        }, 250);
+    }
 
-   const nearTop=(m.pumpHigh-m.price)/m.pumpHigh<0.01;
-   if(nearTop&&m.retests===0&&Date.now()-m.lastSignal<30000){
-      m.retests++;
-      this.render(sym,m,score,true);
-   }
- }
- drawCVD(){
-   const c=$("cvd"),ctx=c.getContext("2d");
-   ctx.clearRect(0,0,c.width,c.height);
-   if(this.cvd.length<2)return;
-   const mn=Math.min(...this.cvd),mx=Math.max(...this.cvd),r=mx-mn||1;
-   ctx.beginPath();ctx.strokeStyle="#00C076";ctx.lineWidth=2;
-   this.cvd.forEach((v,i)=>{const x=i/(this.cvd.length-1)*c.width,y=c.height-(v-mn)/r*c.height;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});
-   ctx.stroke();
- }
+    onMsg(m) {
+        if (!m.topic) return;
+        const p = m.topic.split(".");
+        const type = p[0];
+        const sym = p[p.length - 1];
+        const mk = this.market[sym];
+        if (!mk) return;
+
+        // 1. ОБРАБОТКА ТРЕЙДОВ И ИЗОЛИРОВАННОГО CVD
+        if (type === "publicTrade" && Array.isArray(m.data)) {
+            m.data.forEach(t => {
+                const price = +t.p, qty = +t.v, val = price * qty;
+                mk.price = price;
+                mk.trades.push({ p: price, v: qty, s: t.S, t: +t.T, val });
+                if (mk.trades.length > 450) mk.trades.shift();
+
+                // Расчет CVD строго для текущей монеты в USDT
+                const lastCvd = mk.cvd.length ? mk.cvd[mk.cvd.length - 1] : 0;
+                const delta = (t.S === "Buy" ? 1 : -1) * val;
+                mk.cvd.push(lastCvd + delta);
+                if (mk.cvd.length > 300) mk.cvd.shift();
+            });
+            this.onTradeEvent(sym);
+        }
+
+        // 2. ОБРАБОТКА СВЕЧЕЙ
+        if (type === "kline" && Array.isArray(m.data)) {
+            const k = m.data[0];
+            mk.candles.push({ h: +k.high, l: +k.low, c: +k.close, v: +k.volume });
+            if (mk.candles.length > 120) mk.candles.shift();
+        }
+
+        // 3. ИСПРАВЛЕННАЯ ОБРАБОТКА СТАКАНА (SNAPSHOT / DELTA)
+        if (type === "orderbook" && m.data) {
+            if (m.type === "snapshot") {
+                mk.bids.clear();
+                mk.asks.clear();
+            }
+            if (Array.isArray(m.data.b)) {
+                m.data.b.forEach(([p, q]) => {
+                    const price = parseFloat(p), qty = parseFloat(q);
+                    qty === 0 ? mk.bids.delete(price) : mk.bids.set(price, qty);
+                });
+            }
+            if (Array.isArray(m.data.a)) {
+                m.data.a.forEach(([p, q]) => {
+                    const price = parseFloat(p), qty = parseFloat(q);
+                    qty === 0 ? mk.asks.delete(price) : mk.asks.set(price, qty);
+                });
+            }
+        }
+    }
+
+    flow(m) {
+        let buy = 0, sell = 0, n = Date.now();
+        m.trades.forEach(t => {
+            if (n - t.t < 10000) {
+                t.s === "Buy" ? (buy += t.val) : (sell += t.val);
+            }
+        });
+        return { buy, sell, ratio: sell / (buy || 1) };
+    }
+
+    structure(c) {
+        if (c.length < 5) return false;
+        const a = c.at(-3), b = c.at(-1);
+        return b.h < a.h && b.c < a.c; // Понижающийся максимум и закрытие
+    }
+
+    // ИСПРАВЛЕННЫЙ РАСЧЕТ СТЕНКИ В USDT
+    dynamicWall(m) {
+        if (m.asks.size === 0 || m.bids.size === 0) return 0;
+        
+        const sortedAsks = [...m.asks.entries()].sort((a, b) => a[0] - b[0]).slice(0, 8);
+        const sortedBids = [...m.bids.entries()].sort((a, b) => b[0] - a[0]).slice(0, 8);
+
+        const askUsd = sortedAsks.reduce((s, [p, q]) => s + (p * q), 0);
+        const bidUsd = sortedBids.reduce((s, [p, q]) => s + (p * q), 0);
+
+        return askUsd > bidUsd * 1.7 ? 10 : 0;
+    }
+
+    score(m) {
+        if (m.candles.length < 20) return 0;
+        const last = m.candles.at(-1);
+        const avg = m.candles.slice(-20).reduce((s, x) => s + x.v, 0) / 20 || 1;
+        const pump = (m.pumpHigh - m.pumpLow) / (m.pumpLow || 1) * 100;
+        const f = this.flow(m);
+        
+        let s = 0;
+        if (pump > 8) s += 25; else if (pump > 5) s += 18;
+        if (last.v > avg * 3) s += 20; else if (last.v > avg * 2) s += 12;
+        if (this.structure(m.candles)) s += 25;
+        if (f.ratio > 2) s += 20; else if (f.ratio > 1.5) s += 10;
+        s += this.dynamicWall(m);
+
+        return Math.min(100, s);
+    }
+
+    render(sym, m, score, retest = false) {
+        const e = m.price;
+        const sl = m.pumpHigh * 1.003; // Стоп 0.3% за хай
+        const R = sl - e;
+        const tp1 = e - R * 1.5;
+        const tp2 = e - R * 3;
+
+        const div = document.createElement("div");
+        div.className = "signal";
+        div.innerHTML = `
+            <div class="row" style="justify-content:space-between">
+                <b>${retest ? "🔁 RETEST SHORT" : "🔴 FADE SHORT"} ${sym}</b>
+                <span class="badge">${score}/100</span>
+            </div>
+            <div class="mut" style="margin-top:6px">Entry: <b>${e.toFixed(5)}</b> • SL: <b style="color:var(--r)">${sl.toFixed(5)}</b></div>
+            <div class="mut">TP1: <b style="color:var(--g)">${tp1.toFixed(5)}</b> • TP2: <b style="color:var(--g)">${tp2.toFixed(5)}</b></div>
+            <div class="mut" style="margin-top:4px">Памп: +${((m.pumpHigh - m.pumpLow)/m.pumpLow*100).toFixed(1)}% • Sell Imbalance: ${this.flow(m).ratio.toFixed(1)}x</div>
+        `;
+        $("signals").prepend(div);
+        $("sig").textContent = +$("sig").textContent + 1;
+
+        // Звуковой сигнал
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const o = ctx.createOscillator(), g = ctx.createGain();
+            o.frequency.value = retest ? 660 : 880;
+            o.connect(g); g.connect(ctx.destination); g.gain.value = 0.05;
+            o.start(); o.stop(ctx.currentTime + 0.15);
+        } catch(e){}
+    }
+
+    onTradeEvent(sym) {
+        const m = this.market[sym];
+        if (m.candles.length < 10) return;
+        
+        const last = m.candles.at(-1);
+        const c5 = m.candles.at(-6) || m.candles[0];
+        const pump = (last.c - c5.c) / c5.c * 100;
+
+        // 1. Детектируем начало пампа
+        if (pump > 4.5 && m.state === "IDLE") {
+            m.state = "WATCH";
+            m.pumpHigh = last.h;
+            m.pumpLow = c5.l;
+            m.pumpStart = Date.now();
+            this.activeCvdSymbol = sym; // Авто-фокус CVD на монете в пампе
+        }
+
+        if (m.state !== "WATCH") return;
+
+        // Обновляем High во время слежения
+        if (last.h > m.pumpHigh) m.pumpHigh = last.h;
+
+        // Сброс по тайм-ауту
+        if (Date.now() - m.pumpStart > +$("watchSec").value * 1000) {
+            m.state = "IDLE";
+            return;
+        }
+
+        const score = this.score(m);
+        $("watch").textContent = Object.values(this.market).filter(x => x.state === "WATCH").length;
+        $("trap").style.width = Math.min(100, (this.flow(m).ratio / 3) * 100) + "%";
+
+        if (score < +$("mode").value) return;
+        if (!this.structure(m.candles)) return;
+
+        // Первый сигнал
+        if (Date.now() - m.lastSignal > CFG.REPEAT) {
+            m.lastSignal = Date.now();
+            m.retests = 0;
+            this.render(sym, m, score, false);
+            return;
+        }
+
+        // Логика Ретеста (окно 5 минут)
+        const nearTop = (m.pumpHigh - m.price) / m.pumpHigh < 0.012;
+        if (nearTop && m.retests === 0 && (Date.now() - m.lastSignal < CFG.RETEST_WINDOW)) {
+            m.retests++;
+            this.render(sym, m, score, true);
+        }
+    }
+
+    drawCVD() {
+        const c = $("cvd"), ctx = c.getContext("2d");
+        ctx.clearRect(0, 0, c.width, c.height);
+
+        const sym = this.activeCvdSymbol;
+        $("cvdSymbol").textContent = sym || "---";
+        if (!sym || !this.market[sym]) return;
+
+        const cvdData = this.market[sym].cvd;
+        if (cvdData.length < 2) return;
+
+        const mn = Math.min(...cvdData), mx = Math.max(...cvdData), r = mx - mn || 1;
+        
+        ctx.beginPath();
+        ctx.strokeStyle = cvdData[cvdData.length - 1] >= cvdData[0] ? "#00C076" : "#F6465D";
+        ctx.lineWidth = 2;
+
+        cvdData.forEach((v, i) => {
+            const x = (i / (cvdData.length - 1)) * c.width;
+            const y = c.height - ((v - mn) / r) * (c.height - 20) - 10;
+            i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+        });
+        ctx.stroke();
+    }
 }
-const scanner=new Scanner();
-$("start").onclick=()=>scanner.start();
-$("stop").onclick=()=>scanner.stop();
-$("clear").onclick=()=>{$("signals").innerHTML="";$("sig").textContent=0;}
+
+const scanner = new Scanner();
+$("start").onclick = () => scanner.start();
+$("stop").onclick = () => scanner.stop();
+$("clear").onclick = () => { $("signals").innerHTML = ""; $("sig").textContent = 0; };
 </script>
 </body>
 </html>
