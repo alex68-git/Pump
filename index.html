@@ -9296,7 +9296,29 @@ window.BybitScanner = {
 /* =========================================================
    END
 ========================================================= */
+document.addEventListener("click", function(e){
 
+    if(e.target && e.target.id === "start"){
+
+        console.log("START BUTTON CLICK");
+
+        try{
+            safeStart();
+        }catch(error){
+
+            console.error(
+                "START ERROR:",
+                error
+            );
+
+            setStatus(
+                "START ERROR: " +
+                (error.message || error)
+            );
+        }
+    }
+
+});
 </script>
 
 </body>
