@@ -8800,7 +8800,83 @@ function bindUI(){
             }
         );
     }
+/* =========================================================
+   DIRECT START FIX
+========================================================= */
 
+function directStart(){
+
+    console.log("DIRECT START CLICK");
+
+    try{
+
+        setStatus("Запуск...");
+
+        const result = startEngine();
+
+        if(
+            result &&
+            typeof result.catch === "function"
+        ){
+
+            result.catch(function(error){
+
+                console.error(
+                    "START ENGINE ERROR:",
+                    error
+                );
+
+                engineError(
+                    "directStart",
+                    error
+                );
+
+                setStatus(
+                    "Ошибка запуска"
+                );
+
+            });
+
+        }
+
+    }catch(error){
+
+        console.error(
+            "START ENGINE ERROR:",
+            error
+        );
+
+        engineError(
+            "directStart",
+            error
+        );
+
+        setStatus(
+            "Ошибка запуска"
+        );
+    }
+}
+
+
+/*
+   Дополнительное прямое подключение кнопки.
+   Не заменяет существующий bindUI().
+*/
+
+setTimeout(function(){
+
+    const startButton = $("start");
+
+    if(startButton){
+
+        startButton.addEventListener(
+            "click",
+            directStart
+        );
+
+    }
+
+}, 0);
 
     if(stop){
 
