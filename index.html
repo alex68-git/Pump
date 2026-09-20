@@ -9185,59 +9185,72 @@ function preflight(){
    STARTUP
 --------------------------------------------------------- */
 
-function boot(){
+/* =========================================================
+   FINAL BOOT
+========================================================= */
+
+let APP_READY = false;
+
+function finalBoot(){
+
+    if(APP_READY){
+        return;
+    }
+
+    APP_READY = true;
 
     try{
 
-        if(
-            !preflight()
-        ){
-            return;
-        }
-
+        /*
+         * Инициализация интерфейса.
+         */
         initializeUI();
 
         /*
-           Initial empty state.
-        */
-
+         * Первичный рендер.
+         */
         renderUI();
+
+        /*
+         * Начальное состояние.
+         */
+        setStatus("Готов к запуску");
 
         logEvent(
             "BOOT",
             "APPLICATION_READY"
         );
 
-        setStatus(
-            "Готов к запуску"
-        );
-
     }catch(error){
 
+        console.error(
+            "BOOT ERROR:",
+            error
+        );
+
         engineError(
-            "boot",
+            "finalBoot",
             error
         );
 
         setStatus(
-            "Ошибка запуска UI"
+            "Ошибка интерфейса"
         );
     }
 }
 
 
 /* ---------------------------------------------------------
-   DOM READY
+   START APPLICATION
 --------------------------------------------------------- */
 
 if(
-    document.readyState ===
-    "loading"
+    document.readyState === "loading"
 ){
 
     document.addEventListener(
         "DOMContentLoaded",
-        boot,
+        finalBoot,
         {
             once:true
         }
@@ -9245,34 +9258,45 @@ if(
 
 }else{
 
-    boot();
+    finalBoot();
 }
 
 
 /* ---------------------------------------------------------
-   FINAL DEBUG INFORMATION
+   PUBLIC API
 --------------------------------------------------------- */
 
-if(CONFIG.DEBUG){
+window.BybitScanner = {
 
-    console.log(
-        "Bybit Institutional OrderFlow",
-        {
-            version:"REBUILD-1.0",
-            config:CONFIG
-        }
-    );
-}
+    start: safeStart,
+
+    stop: safeStop,
+
+    clear: clearEngineData,
+
+    health: engineHealth,
+
+    symbol: debugSymbol,
+
+    signals: activeSignals,
+
+    setups: setups,
+
+    books: books,
+
+    trades: trades,
+
+    walls: walls,
+
+    setMode: setEngineMode
+
+};
 
 
 /* =========================================================
-   END OF JAVASCRIPT
+   END
 ========================================================= */
 
-</script>
-
-</body>
-</html>
 </script>
 
 </body>
