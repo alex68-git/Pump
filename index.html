@@ -1,138 +1,4612 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Bybit Institutional OrderFlow v13 PRO</title>
 <style>
-:root{--bg:#06080b;--panel:#0d1117;--panel2:#111720;--line:#202936;--text:#e8edf3;--muted:#8b97a7;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;--blue:#60a5fa;--cyan:#22d3ee}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:10px;padding-bottom:30px}button{border:1px solid var(--line);background:#151b23;color:var(--text);border-radius:10px;padding:10px 13px;font-weight:700}button:active{transform:scale(.98)}.wrap{max-width:900px;margin:auto}.header{padding:10px 2px}.title{font-size:18px;font-weight:800}.sub{color:var(--muted);font-size:11px;margin-top:3px}.bar{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.status{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px;color:var(--muted)}.status b{color:var(--text)}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0}.stat{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:8px}.stat span{display:block;color:var(--muted);font-size:10px}.stat b{font-size:14px}.section{margin-top:10px}.section h3{font-size:12px;color:var(--muted);margin:10px 2px 6px}.cards{display:grid;gap:8px}.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px}.card.long{border-left:3px solid var(--green)}.card.short{border-left:3px solid var(--red)}.card.wait{border-left:3px solid var(--yellow)}.top{display:flex;justify-content:space-between;gap:8px;align-items:center}.sym{font-size:15px;font-weight:800}.dir{font-weight:900}.long .dir{color:var(--green)}.short .dir{color:var(--red)}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}.kv{background:var(--panel2);padding:6px;border-radius:7px}.kv span{display:block;color:var(--muted);font-size:9px}.kv b{font-size:11px}.meter{height:5px;background:#1b222c;border-radius:5px;overflow:hidden;margin-top:7px}.meter i{display:block;height:100%;background:var(--blue)}.reason{color:var(--muted);font-size:10px;line-height:1.35;margin-top:7px}.empty{padding:22px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:10px}.tiny{font-size:9px;color:var(--muted)}@media(max-width:520px){.stats{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:repeat(2,1fr)}}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#050709;color:#e9edf2;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+body{padding:10px;font-size:13px}
+button{font:inherit}
+.app{max-width:900px;margin:auto}
+.header{background:#0c1015;border:1px solid #1d2630;border-radius:14px;padding:12px;margin-bottom:10px}
+.title{font-size:18px;font-weight:800}
+.sub{font-size:11px;color:#778392;margin-top:3px}
+.status{display:flex;align-items:center;gap:7px;margin-top:9px;color:#9ba7b5;font-size:12px}
+.dot{width:8px;height:8px;border-radius:50%;background:#555}
+.dot.ok{background:#35d07f;box-shadow:0 0 8px #35d07f}
+.dot.warn{background:#e9b949}
+.dot.err{background:#ef5350}
+.controls{display:flex;gap:7px;margin-top:10px}
+.btn{border:1px solid #27313c;background:#131920;color:#e8edf2;border-radius:9px;padding:9px 13px;font-weight:700}
+.btn.primary{background:#176b45;border-color:#249565}
+.btn.stop{background:#712b31;border-color:#a8434b}
+.btn:active{transform:scale(.98)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.stat{background:#0c1015;border:1px solid #1b242e;border-radius:10px;padding:8px}
+.stat b{display:block;font-size:15px}
+.stat span{font-size:10px;color:#687583}
+.panel{background:#0c1015;border:1px solid #1b242e;border-radius:13px;padding:10px;margin-bottom:10px}
+.panel-title{font-weight:800;margin-bottom:8px}
+.signal{border:1px solid #26313c;border-radius:12px;padding:11px;margin-bottom:8px;background:#0b0f14}
+.signal.long{border-left:4px solid #29c879}
+.signal.short{border-left:4px solid #e45b62}
+.sig-head{display:flex;justify-content:space-between;align-items:center}
+.direction{font-size:16px;font-weight:900}
+.long .direction{color:#35d07f}
+.short .direction{color:#ef6870}
+.badge{font-size:10px;padding:4px 7px;border-radius:7px;background:#171e26;color:#b8c2cc}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:9px}
+.cell{background:#0f151b;border-radius:8px;padding:7px}
+.cell span{display:block;color:#697785;font-size:10px}
+.cell b{display:block;margin-top:2px;font-size:12px}
+.good{color:#42d58a}
+.bad{color:#ef7070}
+.warn{color:#e5bb59}
+.muted{color:#74808d}
+.small{font-size:10px}
+.empty{padding:25px 8px;text-align:center;color:#687582}
+.log{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:#73808d;max-height:110px;overflow:auto;white-space:pre-wrap}
+@media(max-width:520px){
+  .stats{grid-template-columns:repeat(4,1fr)}
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .title{font-size:16px}
+}
 </style>
 </head>
-<body><div class="wrap">
-<div class="header"><div class="title">Bybit Institutional OrderFlow v13 PRO</div><div class="sub">Orderbook integrity • execution-aware walls • absorption • retest • HTF • paper statistics</div></div>
-<div class="bar"><button id="startBtn">START</button><button id="stopBtn">STOP</button><button id="clearBtn">CLEAR</button><div class="status" id="status">Остановлен</div></div>
-<div class="stats"><div class="stat"><span>Мониторы</span><b id="mMon">0</b></div><div class="stat"><span>Books OK</span><b id="mBooks">0</b></div><div class="stat"><span>Flow OK</span><b id="mFlow">0</b></div><div class="stat"><span>Walls</span><b id="mWalls">0</b></div><div class="stat"><span>Signals</span><b id="mSignals">0</b></div><div class="stat"><span>Lag</span><b id="mLag">—</b></div></div>
-<div class="section"><h3>ACTIVE / WAITING SETUPS</h3><div class="cards" id="signals"><div class="empty">Нажми START. Сканер сначала синхронизирует инструменты, HTF и WebSocket.</div></div></div>
+<body>
+<div class="app">
+
+<div class="header">
+  <div class="title">Bybit Institutional OrderFlow v13 PRO</div>
+  <div class="sub">Walls • Aggressive Flow • Absorption • Retest • HTF Structure</div>
+  <div class="status">
+    <span id="statusDot" class="dot"></span>
+    <span id="statusText">Остановлен</span>
+  </div>
+  <div class="controls">
+    <button id="startBtn" class="btn primary">START</button>
+    <button id="stopBtn" class="btn stop">STOP</button>
+    <button id="clearBtn" class="btn">CLEAR</button>
+  </div>
 </div>
+
+<div class="stats">
+  <div class="stat"><b id="statCoins">0</b><span>мониторинг</span></div>
+  <div class="stat"><b id="statBooks">0</b><span>books</span></div>
+  <div class="stat"><b id="statFlow">0</b><span>flow</span></div>
+  <div class="stat"><b id="statWalls">0</b><span>walls</span></div>
+  <div class="stat"><b id="statSignals">0</b><span>signals</span></div>
+  <div class="stat"><b id="statLag">—</b><span>lag</span></div>
+  <div class="stat"><b id="statWs">0</b><span>WS</span></div>
+  <div class="stat"><b id="statErrors">0</b><span>errors</span></div>
+</div>
+
+<div class="panel">
+  <div class="panel-title">Активные сигналы</div>
+  <div id="signals">
+    <div class="empty">Нажми START — сканер начнёт собирать order flow.</div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-title">Diagnostics</div>
+  <div id="diagnostics" class="log">idle</div>
+</div>
+
+</div>
+
 <script>
 "use strict";
-const CONFIG={
- CATEGORY:"linear",TOP_SYMBOLS:100,ORDERBOOK_DEPTH:50,WS_SYMBOLS_PER_SOCKET:20,
- EXCLUDED_SYMBOLS:new Set(),FLOW_WINDOW_MS:20000,FLOW_BASELINE_MS:120000,MAX_TRADES:700,
- ORDERBOOK_RANGE:.004,WALL_MAX_DISTANCE:.008,WALL_STABLE_MS:5000,WALL_TTL_MS:180000,
- WALL_MIN_RATIO:3.5,WALL_MIN_CONCENTRATION:.55,GLOBAL_MIN_WALL:15000,
- SCAN_MS:150,ACTIVE_SCAN_MS:80,MANAGER_MS:350,UI_MS:650,HTF_REFRESH_MS:300000,
- ENTRY_WINDOW_MS:30000,SETUP_TTL_MS:300000,HARD_TTL_MS:900000,COOLDOWN_MS:45000,
- SAME_SETUP_COOLDOWN_MS:120000,MIN_SCORE:72,MIN_EXECUTION:65,MIN_RR:1.45,
- MAX_SPREAD:.0012,MAX_STALE_BOOK_MS:2500,MAX_STALE_TRADE_MS:7000,MAX_STALE_HTF_MS:420000,
- PING_MS:20000,SOCKET_STALE_MS:7000,RECONNECT_BASE_MS:1000,RECONNECT_MAX_MS:15000,
- HTF_LIMITS:{"4H":120,"1H":160,"15M":180,"5M":200},DEBUG:false
+
+/* =========================================================
+   BYBIT INSTITUTIONAL ORDERFLOW v13 PRO
+   Browser / iPhone / GitHub Pages
+   Analytical scanner only — NO order execution
+   ========================================================= */
+
+const CONFIG = {
+  CATEGORY: "linear",
+  REST_BASE: "https://api.bybit.com",
+  WS_URL: "wss://stream.bybit.com/v5/public/linear",
+
+  TOP_SYMBOLS: 100,
+
+  ORDERBOOK_DEPTH: 50,
+  ORDERBOOK_DISTANCE: 0.008,
+
+  FLOW_WINDOW_MS: 20000,
+  FLOW_BASELINE_MS: 120000,
+  FLOW_FRESH_MS: 12000,
+  MIN_FLOW_USD: 25000,
+
+  MAX_TRADES: 1000,
+
+  WALL_MIN_AGE_MS: 4000,
+  WALL_STABLE_MS: 10000,
+  WALL_TTL_MS: 30000,
+  WALL_DISTANCE: 0.008,
+
+  MIN_WALL_RATIO: 3.5,
+  MIN_WALL_CONCENTRATION: 0.50,
+
+  SCAN_MS: 250,
+  MANAGER_MS: 700,
+  UI_MS: 800,
+
+  SIGNAL_TTL_MS: 15 * 60 * 1000,
+  ENTRY_WINDOW_MS: 45000,
+
+  COOLDOWN_MS: 90000,
+  SETUP_COOLDOWN_MS: 180000,
+
+  MIN_SCORE: 72,
+  MIN_DIRECTION_MARGIN: 12,
+  MIN_RR: 1.5,
+
+  MAX_SPREAD_PCT: 0.12,
+
+  WS_GROUP_SIZE: 20,
+  WS_PING_MS: 20000,
+  WS_STALE_MS: 9000,
+
+  HTF_REFRESH_MS: 15 * 60 * 1000,
+  HTF_BATCH: 3,
+  HTF_DELAY_MS: 350,
+
+  DEBUG: false
 };
-const REST="https://api.bybit.com";const WSURL="wss://stream.bybit.com/v5/public/linear";
-const books=new Map(),trades=new Map(),marketMeta=new Map(),htfData=new Map(),wallStates=new Map(),signals=new Map(),cooldowns=new Map(),setupHistory=new Map(),health=new Map(),dirty=new Set(),sockets=[];
-let universe=[],running=false,cycle=0,scanTimer=0,managerTimer=0,uiTimer=0,htfTimer=0,universeTimer=0,reconnectTimer=0;
-const metrics={signalsCreated:0,wsMessages:0,lastLag:0};
-const paper={open:new Map(),closed:[],wins:0,losses:0,totalR:0};
-const $=id=>document.getElementById(id);const now=()=>Date.now();
-const n=(v,d=0)=>{const x=Number(v);return Number.isFinite(x)?x:d};
-const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
-const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-const fmtUsd=v=>{v=n(v);if(v>=1e6)return "$"+(v/1e6).toFixed(2)+"M";if(v>=1e3)return "$"+(v/1e3).toFixed(1)+"K";return "$"+v.toFixed(0)};
-const fmtPct=v=>(n(v)*100).toFixed(3)+"%";
-const fmtPrice=(s,v)=>{const tick=n(marketMeta.get(s)?.tickSize,.000001);const p=n(v);const d=Math.max(0,(String(tick).split(".")[1]||"").replace(/0+$/g,"").length);return p.toFixed(Math.min(8,Math.max(2,d)))};
-const distPct=(a,b)=>a&&b?Math.abs(a-b)/b:Infinity;
-const tickRound=(s,p)=>{const t=n(marketMeta.get(s)?.tickSize,.000001);return Math.round(p/t)*t};
-function setStatus(t){$("status").textContent=t}
-function markDirty(s){dirty.add(s)}
-function healthOf(s){if(!health.has(s))health.set(s,{bookRx:0,tradeRx:0,bookTs:0,tradeTs:0,bookValid:false,seqErrors:0,reconnects:0,lastError:"",socketId:null});return health.get(s)}
-function ensureBook(s){if(!books.has(s))books.set(s,{bids:new Map(),asks:new Map(),u:0,seq:0,cts:0,ts:0,lastRx:0,lastPrice:0,lastTradePrice:0,bestBid:0,bestAsk:0,spread:0,spreadPct:0,valid:false,desynced:false});return books.get(s)}
-function ensureTrades(s){if(!trades.has(s))trades.set(s,[]);return trades.get(s)}
-function clearBook(s){const b=ensureBook(s);b.bids.clear();b.asks.clear();b.u=0;b.seq=0;b.cts=0;b.ts=0;b.lastRx=0;b.valid=false;b.desynced=true;b.bestBid=0;b.bestAsk=0;b.spread=0;b.spreadPct=0;healthOf(s).bookValid=false}
-function applyLevels(map,arr){for(const row of Array.isArray(arr)?arr:[]){const p=n(row?.[0]),q=n(row?.[1]);if(!(p>0))continue;if(q<=0)map.delete(p);else map.set(p,q)}}
-function recalcBook(s){const b=ensureBook(s);let bb=0,ba=Infinity;for(const p of b.bids.keys())if(p>bb)bb=p;for(const p of b.asks.keys())if(p<ba)ba=p;b.bestBid=bb;b.bestAsk=Number.isFinite(ba)?ba:0;b.spread=bb&&b.bestAsk?b.bestAsk-bb:0;b.spreadPct=bb&&b.bestAsk?b.spread/bestMid(b):Infinity;b.lastPrice=b.lastTradePrice||bestMid(b);}
-function bestMid(b){return b.bestBid&&b.bestAsk?(b.bestBid+b.bestAsk)/2:(b.bestBid||b.bestAsk||b.lastPrice||0)}
-    function handleBookMessage(msg){const d=msg?.data;if(!d?.s)return;const s=d.s,b=ensureBook(s),h=healthOf(s),type=msg.type;
- if(type==="snapshot"){
-  b.bids.clear();b.asks.clear();applyLevels(b.bids,d.b);applyLevels(b.asks,d.a);b.u=n(d.u);b.seq=n(d.seq);b.cts=n(d.cts);b.ts=n(msg.ts);b.lastRx=now();b.desynced=false;b.valid=true;recalcBook(s);h.bookRx=b.lastRx;h.bookTs=b.ts;h.bookValid=true;markDirty(s);return;
- }
- if(type!=="delta")return;
- if(!b.valid||b.desynced)return;
- const u=n(d.u);if(u<b.u)return;if(u===b.u&&n(d.seq)<=b.seq)return;
- applyLevels(b.bids,d.b);applyLevels(b.asks,d.a);b.u=u;b.seq=n(d.seq);b.cts=n(d.cts);b.ts=n(msg.ts);b.lastRx=now();recalcBook(s);h.bookRx=b.lastRx;h.bookTs=b.ts;markDirty(s);
+
+const EXCLUDED = new Set([
+  "BTCUSDT","ETHUSDT","SOLUSDT","XRPUSDT","DOGEUSDT"
+]);
+
+const books = new Map();
+const trades = new Map();
+const market = new Map();
+const instruments = new Map();
+const htf = new Map();
+const walls = new Map();
+const signals = new Map();
+const cooldowns = new Map();
+const sockets = [];
+
+let running = false;
+let engineTimer = null;
+let managerTimer = null;
+let uiTimer = null;
+let universeTimer = null;
+let htfTimer = null;
+
+let scanCycle = 0;
+let lastEngineTick = 0;
+let globalErrors = 0;
+
+let currentUniverseKey = "";
+
+const $ = id => document.getElementById(id);
+
+function now(){
+  return Date.now();
 }
-function handleTradeMessage(msg){const arr=Array.isArray(msg?.data)?msg.data:[];for(const x of arr){const s=x?.s;if(!s||!marketMeta.has(s))continue;const p=n(x.p),q=n(x.v);const side=String(x.S||"").toUpperCase();if(!(p>0&&q>0)||!(side==="BUY"||side==="SELL"))continue;const t=ensureTrades(s),rx=now(),T=n(x.T,rx),id=String(x.i||`${T}-${p}-${q}-${side}`),b=ensureBook(s),m=marketMeta.get(s);const item={id,price:p,qty:q,usd:p*q,side,exchangeTime:T,receivedTime:rx,seq:n(x.seq)};t.push(item);while(t.length&&rx-t[0].receivedTime>Math.max(CONFIG.FLOW_BASELINE_MS,60000))t.shift();while(t.length>CONFIG.MAX_TRADES)t.shift();b.lastTradePrice=p;b.lastPrice=p;m.lastPrice=p;const h=healthOf(s);h.tradeRx=rx;h.tradeTs=T;markDirty(s)}}
-function handleWS(msg,state){metrics.wsMessages++;state.lastRx=now();if(msg?.op==="pong"||msg?.ret_msg==="pong")return;if(msg?.topic?.startsWith("orderbook."))handleBookMessage(msg);else if(msg?.topic?.startsWith("publicTrade."))handleTradeMessage(msg)}
-function socketGroups(){const syms=universe.map(x=>x.symbol);const out=[];for(let i=0;i<syms.length;i+=CONFIG.WS_SYMBOLS_PER_SOCKET)out.push(syms.slice(i,i+CONFIG.WS_SYMBOLS_PER_SOCKET));return out}
-function createSocket(symbols,index){const st={index,symbols,ws:null,manual:false,attempt:0,lastRx:0,ping:null,reconnect:null};const connect=()=>{if(st.manual||!running)return;try{const ws=new WebSocket(WSURL);st.ws=ws;ws.onopen=()=>{st.attempt=0;st.lastRx=now();setTimeout(()=>{if(ws.readyState===1)ws.send(JSON.stringify({op:"subscribe",args:symbols.flatMap(s=>[`orderbook.${CONFIG.ORDERBOOK_DEPTH}.${s}`,`publicTrade.${s}`])}))},50);st.ping=setInterval(()=>{if(ws.readyState===1)ws.send(JSON.stringify({op:"ping"}))},CONFIG.PING_MS)};ws.onmessage=e=>{try{handleWS(JSON.parse(e.data),st)}catch(err){console.warn(err)}};ws.onerror=()=>{};ws.onclose=()=>{if(st.ping)clearInterval(st.ping);if(!st.manual&&running){for(const s of symbols){clearBook(s);healthOf(s).reconnects++}const delay=Math.min(CONFIG.RECONNECT_MAX_MS,CONFIG.RECONNECT_BASE_MS*Math.pow(2,st.attempt++));clearTimeout(st.reconnect);st.reconnect=setTimeout(connect,delay)}}}catch(e){st.attempt++;st.reconnect=setTimeout(connect,Math.min(CONFIG.RECONNECT_MAX_MS,CONFIG.RECONNECT_BASE_MS*Math.pow(2,st.attempt)))}};connect();return st}
-function closeSockets(){for(const st of sockets){st.manual=true;clearTimeout(st.reconnect);clearInterval(st.ping);try{st.ws?.close()}catch{}}sockets.length=0}
-function startSockets(){closeSockets();for(const g of socketGroups())sockets.push(createSocket(g,sockets.length))}
-async function rest(path,params={},timeout=10000){const u=new URL(REST+path);Object.entries(params).forEach(([k,v])=>{if(v!==undefined&&v!==null)u.searchParams.set(k,v)});const c=new AbortController(),tm=setTimeout(()=>c.abort(),timeout);try{const r=await fetch(u,{signal:c.signal,cache:"no-store"});if(!r.ok)throw Error(`HTTP ${r.status}`);const j=await r.json();if(n(j.retCode)!==0)throw Error(j.retMsg||"Bybit error");return j}finally{clearTimeout(tm)}}
-    async function loadInstruments(){let cursor="";do{const j=await rest("/v5/market/instruments-info",{category:"linear",limit:1000,cursor:cursor||undefined});for(const x of j.result.list||[]){if(x.status!=="Trading"||x.contractType!=="LinearPerpetual"||x.quoteCoin!=="USDT")continue;marketMeta.set(x.symbol,{symbol:x.symbol,tickSize:n(x.priceFilter?.tickSize),qtyStep:n(x.lotSizeFilter?.qtyStep),minOrderQty:n(x.lotSizeFilter?.minOrderQty),minNotional:n(x.lotSizeFilter?.minNotionalValue),lastPrice:0,turnover24h:0,rank:9999})}cursor=j.result.nextPageCursor||""}while(cursor)}
-async function loadUniverse(){const j=await rest("/v5/market/tickers",{category:"linear"});const a=[];for(const x of j.result.list||[]){const m=marketMeta.get(x.symbol);if(!m||CONFIG.EXCLUDED_SYMBOLS.has(x.symbol))continue;const price=n(x.lastPrice),turn=n(x.turnover24h);if(!(price>0&&turn>0))continue;m.lastPrice=price;m.turnover24h=turn;m.rank=0;a.push({symbol:x.symbol,price,turnover24h:turn})}a.sort((x,y)=>y.turnover24h-x.turnover24h);universe=a.slice(0,CONFIG.TOP_SYMBOLS).map((x,i)=>{marketMeta.get(x.symbol).rank=i+1;return{...x,rank:i+1}});for(const s of universe.map(x=>x.symbol)){ensureBook(s);ensureTrades(s);healthOf(s)}return universe}
-function closedKlines(list){const t=now();return(list||[]).map(x=>({start:n(x[0]),open:n(x[1]),high:n(x[2]),low:n(x[3]),close:n(x[4]),volume:n(x[5]),turnover:n(x[6]),end:n(x[0])+intervalMs(x[7]||"1")})).filter(x=>x.end<=t)}
-function intervalMs(i){return ({"5":300000,"15":900000,"60":3600000,"240":14400000}[String(i)]||300000)}
-async function loadCandles(s,interval,limit){const j=await rest("/v5/market/kline",{category:"linear",symbol:s,interval,limit});return (j.result.list||[]).map(x=>({start:n(x[0]),open:n(x[1]),high:n(x[2]),low:n(x[3]),close:n(x[4]),volume:n(x[5]),turnover:n(x[6]),end:n(x[0])+intervalMs(interval)})).filter(x=>x.end<=now()).reverse()}
-function atr(cs,len=14){if(cs.length<len+1)return 0;let tr=[];for(let i=1;i<cs.length;i++){const c=cs[i],p=cs[i-1];tr.push(Math.max(c.high-c.low,Math.abs(c.high-p.close),Math.abs(c.low-p.close)))}let a=tr.slice(0,len).reduce((a,b)=>a+b,0)/len;for(let i=len;i<tr.length;i++)a=(a*(len-1)+tr[i])/len;return a}
-function fractals(cs){const hi=[],lo=[];for(let i=2;i<cs.length-2;i++){if(cs[i].high>cs[i-1].high&&cs[i].high>=cs[i+1].high&&cs[i].high>cs[i-2].high&&cs[i].high>=cs[i+2].high)hi.push(cs[i].high);if(cs[i].low<cs[i-1].low&&cs[i].low<=cs[i+1].low&&cs[i].low<cs[i-2].low&&cs[i].low<=cs[i+2].low)lo.push(cs[i].low)}return{hi,lo}}
-function zones(cs){if(!cs.length)return[];const f=fractals(cs),last=cs.at(-1).close,z=[];for(const p of f.lo.slice(-20))z.push({type:"SUPPORT",price:p,tf:"HTF",confluence:1});for(const p of f.hi.slice(-20))z.push({type:"RESISTANCE",price:p,tf:"HTF",confluence:1});return z.filter(z=>distPct(z.price,last)<.08)}
-function mergeZones(arr){const out=[];for(const z of arr.sort((a,b)=>a.price-b.price)){const q=out.find(x=>x.type===z.type&&distPct(x.price,z.price)<.0018);if(q){q.price=(q.price*q.confluence+z.price)/(q.confluence+1);q.confluence++}else out.push({...z})}return out}
-async function refreshHTF(){const syms=universe.map(x=>x.symbol);for(let i=0;i<syms.length;i+=5){await Promise.all(syms.slice(i,i+5).map(async s=>{try{const [h4,h1,m15,m5]=await Promise.all([loadCandles(s,"240",CONFIG.HTF_LIMITS["4H"]),loadCandles(s,"60",CONFIG.HTF_LIMITS["1H"]),loadCandles(s,"15",CONFIG.HTF_LIMITS["15M"]),loadCandles(s,"5",CONFIG.HTF_LIMITS["5M"])]);const price=marketMeta.get(s)?.lastPrice||ensureBook(s).lastPrice;htfData.set(s,{zones:mergeZones([...zones(h4),...zones(h1),...zones(m15),...zones(m5)]),atr15:atr(m15),atr5:atr(m5),price,updatedAt:now()})}catch(e){console.warn("HTF",s,e)}}));await sleep(60)}}
-function recentTrades(s,ms=CONFIG.FLOW_WINDOW_MS){const t=trades.get(s)||[],cut=now()-ms;return t.filter(x=>x.receivedTime>=cut)}
-function flow(s,ms=CONFIG.FLOW_WINDOW_MS){const a=recentTrades(s,ms);let buy=0,sell=0,bc=0,sc=0;for(const x of a){if(x.side==="BUY"){buy+=x.usd;bc++}else{sell+=x.usd;sc++}}const total=buy+sell,net=buy-sell;return{buy,sell,total,net,imbalance:total?net/total:0,buyCount:bc,sellCount:sc,lastTrade:a.at(-1)?.receivedTime||0}}
-function baseline(s){const a=recentTrades(s,CONFIG.FLOW_BASELINE_MS);if(!a.length)return{avg:0,median:0};const buckets=new Map();for(const x of a){const k=Math.floor(x.receivedTime/5000);buckets.set(k,(buckets.get(k)||0)+x.usd)}const v=[...buckets.values()].filter(x=>x>0).sort((a,b)=>a-b);return{avg:v.length?v.reduce((a,b)=>a+b,0)/v.length:0,median:v.length?v[Math.floor(v.length/2)]:0}}
-function flowContext(s){const f=flow(s),bl=baseline(s),intensity=bl.median?f.total/(bl.median*4):0;return{...f,intensity,dir:f.imbalance>.18?"BUY":f.imbalance<-.18?"SELL":"NEUTRAL",fresh:now()-f.lastTrade<=CONFIG.MAX_STALE_TRADE_MS,quality:clamp(50+Math.abs(f.imbalance)*45+Math.min(25,intensity*10),0,100)}}
-    function bookLevels(s,side,range=CONFIG.ORDERBOOK_RANGE){const b=ensureBook(s),p=b.lastTradePrice||bestMid(b);if(!(p>0))return[];const map=side==="BID"?b.bids:b.asks;const out=[];for(const [price,qty] of map){if(distPct(price,p)<=range)out.push({price,qty,usd:price*qty,distance:distPct(price,p)})}return out}
-function localLiquidity(s,side){const a=bookLevels(s,side);if(!a.length)return{median:0,mean:0,total:0,count:0};const v=a.map(x=>x.usd).sort((x,y)=>x-y);return{median:v[Math.floor(v.length/2)]||0,mean:v.reduce((x,y)=>x+y,0)/v.length,total:v.reduce((x,y)=>x+y,0),count:v.length}}
-function wallThreshold(s,side){const m=marketMeta.get(s)||{},l=localLiquidity(s,side),turn=n(m.turnover24h);let x=Math.max(CONFIG.GLOBAL_MIN_WALL,l.median*4,l.mean*2.5,turn*.00001);if(turn>5e9)x=Math.max(x,500000);else if(turn>1e9)x=Math.max(x,250000);else if(turn>3e8)x=Math.max(x,100000);return x}
-function clusterWalls(s,side){const a=bookLevels(s,side).sort((x,y)=>x.price-y.price),out=[];if(!a.length)return[];const tol=Math.max(n(marketMeta.get(s)?.tickSize)*10,(ensureBook(s).lastTradePrice||0)*.00025);for(const x of a){let c=out.at(-1);if(!c||Math.abs(c.price-x.price)>tol){c={side,price:x.price,maxUsd:x.usd,totalUsd:0,levels:[],concentration:0};out.push(c)}c.levels.push(x);c.totalUsd+=x.usd;c.maxUsd=Math.max(c.maxUsd,x.usd);c.price=c.levels.reduce((a,b)=>a+b.price,0)/c.levels.length}for(const c of out){c.concentration=c.totalUsd?c.maxUsd/c.totalUsd:0;c.distance=distPct(c.price,ensureBook(s).lastTradePrice||bestMid(ensureBook(s)));c.ratio=c.maxUsd/Math.max(1,localLiquidity(s,side).median);c.threshold=wallThreshold(s,side)}return out.filter(c=>c.maxUsd>=c.threshold&&c.ratio>=CONFIG.WALL_MIN_RATIO&&c.distance<=CONFIG.WALL_MAX_DISTANCE&&c.concentration>=CONFIG.WALL_MIN_CONCENTRATION)}
-function wallKey(s,side,price){const t=Math.max(n(marketMeta.get(s)?.tickSize)*10,(ensureBook(s).lastTradePrice||price)*.00015);return `${s}:${side}:${Math.round(price/t)}`}
-function ensureWall(s,key,side,price){if(!wallStates.has(key))wallStates.set(key,{key,symbol:s,side,price,firstSeen:now(),lastSeen:now(),lastUsd:0,peakUsd:0,currentUsd:0,reducedUsd:0,addedUsd:0,tests:0,testActive:false,lastTestStart:0,successfulTests:0,replenishments:0,executions:0,cancellations:0,state:"NEW",lastCycle:0,spoof:0,absorption:0,stability:0});return wallStates.get(key)}
-function updateWalls(s){const p=ensureBook(s).lastTradePrice||bestMid(ensureBook(s));if(!(p>0))return[];const candidates=[...clusterWalls(s,"BID"),...clusterWalls(s,"ASK")],seen=new Set();for(const c of candidates){const k=wallKey(s,c.side,c.price),st=ensureWall(s,k,c.side,c.price);seen.add(k);const prev=st.currentUsd||c.maxUsd;st.lastSeen=now();st.lastCycle=cycle;st.price=c.price;st.currentUsd=c.maxUsd;st.peakUsd=Math.max(st.peakUsd,c.maxUsd);if(prev>0&&c.maxUsd<prev)st.reducedUsd+=prev-c.maxUsd;else if(prev>0&&c.maxUsd>prev)st.addedUsd+=c.maxUsd-prev;st.stability=clamp((now()-st.firstSeen)/CONFIG.WALL_STABLE_MS,0,1);const relation=st.side==="BID"?(p<=st.price*1.0012&&p>=st.price*.9988):(p>=st.price*.9988&&p<=st.price*1.0012);if(relation&&!st.testActive){st.testActive=true;st.tests++;st.lastTestStart=now()}if(!relation&&st.testActive){st.testActive=false;if(st.addedUsd>0&&st.currentUsd>=st.peakUsd*.75)st.replenishments++}const recentAttack=flow(s).sell;const attack=st.side==="BID"?recentAttack:flow(s).buy;const reduction=Math.max(0,prev-c.maxUsd);const attributed=Math.min(reduction,attack);st.executions=attributed;st.cancellations=Math.max(0,reduction-attributed);st.absorption=st.executions/Math.max(1,st.peakUsd);st.spoof=st.cancellations/Math.max(1,reduction);st.state=st.spoof>.8&&now()-st.firstSeen<15000?"SPOOF":st.currentUsd<st.peakUsd*.15?"REMOVED":st.replenishments>0?"REPLENISHING":st.testActive?"TESTED":st.stability>=1?"STABLE":"NEW"}
-for(const st of wallStates.values())if(st.symbol===s&&st.lastCycle!==cycle&&now()-st.lastSeen>CONFIG.WALL_TTL_MS)wallStates.delete(st.key);return [...wallStates.values()].filter(x=>x.symbol===s&&x.lastCycle===cycle)}
-function wallFor(s,dir){const side=dir==="LONG"?"BID":"ASK",p=ensureBook(s).lastTradePrice||bestMid(ensureBook(s));const arr=[...wallStates.values()].filter(x=>x.symbol===s&&x.side===side&&x.lastCycle===cycle&&x.state!=="SPOOF"&&x.state!=="REMOVED");arr.sort((a,b)=>distPct(a.price,p)-distPct(b.price,p));return arr[0]||null}
-function wallScore(st){if(!st)return 0;return clamp(25+st.stability*20+clamp(st.absorption*100,0,25)+Math.min(15,st.replenishments*5)+Math.min(15,st.tests*5)-st.spoof*25,0,100)}
-function htfContext(s,dir){const h=htfData.get(s),p=ensureBook(s).lastTradePrice||marketMeta.get(s)?.lastPrice;if(!h||!p||now()-h.updatedAt>CONFIG.MAX_STALE_HTF_MS)return null;const type=dir==="LONG"?"SUPPORT":"RESISTANCE";const z=h.zones.filter(x=>x.type===type).map(x=>({...x,d:distPct(x.price,p)})).filter(x=>dir==="LONG"?x.price<=p*1.01:x.price>=p*.99).sort((a,b)=>a.d-b.d)[0];if(!z)return null;return{zone:z,score:clamp(35-z.d*1000+Math.min(15,z.confluence*5),0,50),age:now()-h.updatedAt,atr5:h.atr5,atr15:h.atr15}}
-function directionalResponse(s,dir){const a=recentTrades(s,10000);if(a.length<3)return{score:0,valid:false};const p0=a[0].price,p1=a.at(-1).price,chg=(p1-p0)/p0;const desired=dir==="LONG"?chg:-chg;const f=flow(s,10000);const weakening=dir==="LONG"?f.sell<f.buy:f.buy<f.sell;return{score:clamp(20+desired*10000+(weakening?10:0),0,30),valid:true,change:chg}}
-    function setup(s,dir){const b=ensureBook(s),p=b.lastTradePrice||bestMid(b),h=htfContext(s,dir),w=wallFor(s,dir),f=flowContext(s),r=directionalResponse(s,dir);if(!(p>0&&h&&w&&f.fresh&&r.valid))return null;const wallS=wallScore(w);const flowS=clamp(30+Math.abs(f.imbalance)*45+(f.intensity>1?15:0),0,45);const responseS=r.score;const flowAligned=dir==="LONG"?f.dir!=="SELL":f.dir!=="BUY";if(distPct(p,w.price)>.004)return null;let score=h.score+wallS*.55+flowS*.55+responseS*.5;if(!flowAligned)score-=25;if(w.state==="SPOOF"||w.state==="REMOVED")score-=50;const spread=b.spreadPct;const exec=clamp(40+(spread<=CONFIG.MAX_SPREAD?25:0)+(b.lastRx&&now()-b.lastRx<500?15:0)+(f.fresh?15:0)+Math.min(10,w.stability*10),0,100);if(score<CONFIG.MIN_SCORE||exec<CONFIG.MIN_EXECUTION||spread>CONFIG.MAX_SPREAD)return null;const atrv=Math.max(h.atr5||0,p*.001);const entry=dir==="LONG"?(b.bestAsk||p):(b.bestBid||p);const stop=dir==="LONG"?Math.min(w.price,h.zone.price)-atrv*.35:Math.max(w.price,h.zone.price)+atrv*.35;const risk=Math.abs(entry-stop);if(!(risk>0))return null;const opp=dir==="LONG"?"RESISTANCE":"SUPPORT";const zonesOpp=htfData.get(s)?.zones.filter(x=>x.type===opp).filter(x=>dir==="LONG"?x.price>entry:x.price<entry).sort((a,b)=>Math.abs(a.price-entry)-Math.abs(b.price-entry));const tp=zonesOpp?.[0]?.price||(dir==="LONG"?entry+risk*1.7:entry-risk*1.7);const rr=Math.abs(tp-entry)/risk;if(rr<CONFIG.MIN_RR)return null;return{symbol:s,direction:dir,entryPrice:tickRound(s,entry),stopLoss:tickRound(s,stop),takeProfit:tickRound(s,tp),risk,rr,score:clamp(score,0,100),execution:exec,wall:w,htf:h,flow:f,response:r,createdAt:now(),entryValidUntil:now()+CONFIG.ENTRY_WINDOW_MS,setupExpiresAt:now()+CONFIG.SETUP_TTL_MS,hardExpiresAt:now()+CONFIG.HARD_TTL_MS,status:"ENTRY",retestSeen:false,leftWall:false,retestHigh:p,retestLow:p,fingerprint:`${dir}:${w.key}:${Math.round(entry/(atrv||p*.001))}`}}
-function paperOpen(sig,p){if(paper.open.has(sig.symbol)||!sig.retestSeen)return;paper.open.set(sig.symbol,{symbol:sig.symbol,direction:sig.direction,entry:p,sl:sig.stopLoss,tp:sig.takeProfit,entryTime:now(),mfe:0,mae:0,signal:sig.fingerprint})}
-function paperManage(){for(const [s,pos] of paper.open){const p=ensureBook(s).lastTradePrice||0;if(!(p>0))continue;const r=pos.direction==="LONG"?(p-pos.entry)/(Math.abs(pos.entry-pos.sl)||1):(pos.entry-p)/(Math.abs(pos.entry-pos.sl)||1);const adverse=pos.direction==="LONG"?(p-pos.entry)/(Math.abs(pos.entry-pos.sl)||1):(pos.entry-p)/(Math.abs(pos.entry-pos.sl)||1);pos.mfe=Math.max(pos.mfe,r);pos.mae=Math.min(pos.mae,adverse);const hitTP=pos.direction==="LONG"?p>=pos.tp:p<=pos.tp;const hitSL=pos.direction==="LONG"?p<=pos.sl:p>=pos.sl;if(hitTP||hitSL){const rr=hitTP?Math.abs(pos.tp-pos.entry)/Math.abs(pos.entry-pos.sl):-1;paper.closed.push({...pos,exit:p,r:rr,exitTime:now()});if(hitTP)paper.wins++;else paper.losses++;paper.totalR+=rr;paper.open.delete(s);if(paper.closed.length>500)paper.closed.shift()}}}
-function signalValid(sig){const t=now();if(t>sig.hardExpiresAt)return false;if(sig.status==="ENTRY"&&t>sig.entryValidUntil)sig.status="WAITING";const b=ensureBook(sig.symbol),h=healthOf(sig.symbol);if(!b.valid||b.desynced||t-b.lastRx>CONFIG.MAX_STALE_BOOK_MS)return false;const w=wallStates.get(sig.wall.key);if(!w||w.state==="SPOOF"||w.state==="REMOVED")return false;const p=b.lastTradePrice||bestMid(b);if(sig.direction==="LONG"&&p<sig.stopLoss)return false;if(sig.direction==="SHORT"&&p>sig.stopLoss)return false;const f=flowContext(sig.symbol);if(sig.direction==="LONG"&&f.imbalance<-.45)return false;if(sig.direction==="SHORT"&&f.imbalance>.45)return false;const wdist=distPct(p,sig.wall.price);if(!sig.retestSeen){if(!sig.leftWall&&wdist>.004)sig.leftWall=true;if(sig.leftWall&&sig.direction==="LONG"&&p>=sig.wall.price&&wdist<.002)sig.retestSeen=true;if(sig.leftWall&&sig.direction==="SHORT"&&p<=sig.wall.price&&wdist<.002)sig.retestSeen=true;if(sig.status==="ENTRY"&&now()>sig.entryValidUntil)return false;}return true}
-function cooldownKey(s,d){return `${s}:${d}`}
-function canCreate(s,d,fp){const t=now(),k=cooldownKey(s,d);if((cooldowns.get(k)||0)>t)return false;const h=setupHistory.get(fp);return !(h&&h>t)}
-function createSignal(s,d){if(signals.has(s))return;const x=setup(s,d);if(!x)return;if(!canCreate(s,d,x.fingerprint))return;signals.set(s,x);cooldowns.set(cooldownKey(s,d),now()+CONFIG.COOLDOWN_MS);setupHistory.set(x.fingerprint,now()+CONFIG.SAME_SETUP_COOLDOWN_MS);metrics.signalsCreated++}
-function scanSymbol(s){const b=ensureBook(s),h=healthOf(s);if(!b.valid||b.desynced||now()-b.lastRx>CONFIG.MAX_STALE_BOOK_MS)return;cycle++;updateWalls(s);const existing=signals.get(s);if(existing&&!signalValid(existing)){signals.delete(s)}else if(existing)return;const l=setup(s,"LONG"),sh=setup(s,"SHORT");if(l&&sh)return;if(l)createSignal(s,"LONG");else if(sh)createSignal(s,"SHORT")}
-function scan(){if(!running)return;for(const s of universe.map(x=>x.symbol)){if(dirty.has(s)){dirty.delete(s);scanSymbol(s)}}}
-function manage(){paperManage();for(const [s,x] of signals){if(!signalValid(x)){signals.delete(s);continue}const b=ensureBook(s),p=b.lastTradePrice||bestMid(b);if(x.retestSeen)paperOpen(x,p);if(x.direction==="LONG"&&p>=x.takeProfit)x.status="TARGET";if(x.direction==="SHORT"&&p<=x.takeProfit)x.status="TARGET";if(now()>x.hardExpiresAt)signals.delete(s)}}
-    function htmlEsc(v){return String(v).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
-function render(){const box=$("signals"),arr=[...signals.values()].sort((a,b)=>b.createdAt-a.createdAt);if(!arr.length){box.innerHTML='<div class="empty">Нет активных setup. Сканер ждет подтверждения: HTF + wall + flow + reaction + execution.</div>';return}box.innerHTML=arr.map(x=>{const age=Math.round((now()-x.createdAt)/1000),p=ensureBook(x.symbol).lastTradePrice||0;return `<div class="card ${x.direction.toLowerCase()}"><div class="top"><div><span class="sym">${htmlEsc(x.symbol)}</span> <span class="dir">${x.direction}</span></div><div>${x.status}</div></div><div class="grid"><div class="kv"><span>Entry</span><b>${fmtPrice(x.symbol,x.entryPrice)}</b></div><div class="kv"><span>SL</span><b>${fmtPrice(x.symbol,x.stopLoss)}</b></div><div class="kv"><span>TP</span><b>${fmtPrice(x.symbol,x.takeProfit)}</b></div><div class="kv"><span>RR</span><b>${x.rr.toFixed(2)}</b></div><div class="kv"><span>Setup</span><b>${x.score.toFixed(0)}</b></div><div class="kv"><span>Execution</span><b>${x.execution.toFixed(0)}</b></div></div><div class="meter"><i style="width:${clamp(x.score,0,100)}%"></i></div><div class="reason">Wall ${x.wall.side} ${fmtUsd(x.wall.currentUsd)} • ${x.wall.state} • absorption ${(x.wall.absorption*100).toFixed(1)}% • tests ${x.wall.tests} • flow ${(x.flow.imbalance*100).toFixed(1)}% • spread ${fmtPct(ensureBook(x.symbol).spreadPct)} • retest ${x.retestSeen?"YES":"WAIT"} • age ${age}s • price ${fmtPrice(x.symbol,p)}</div></div>`}).join("")}
-function stats(){let booksOk=0,flowOk=0,walls=0,lag=0,c=0;for(const x of universe){const s=x.symbol,b=ensureBook(s),h=healthOf(s);if(b.valid&&!b.desynced&&now()-b.lastRx<CONFIG.MAX_STALE_BOOK_MS)booksOk++;if(now()-h.tradeRx<CONFIG.MAX_STALE_TRADE_MS)flowOk++;walls+=[...wallStates.values()].filter(w=>w.symbol===s&&now()-w.lastSeen<CONFIG.WALL_TTL_MS).length;if(b.lastRx){lag=Math.max(lag,now()-b.lastRx);c++}}$("mMon").textContent=universe.length;$("mBooks").textContent=booksOk;$("mFlow").textContent=flowOk;$("mWalls").textContent=walls;$("mSignals").textContent=signals.size;$("mLag").textContent=c?lag+"ms":"—"}
-function reconnectCheck(){
- if(!running)return;
- const t=now();
- for(const st of sockets){
-  if(st.ws?.readyState===1&&t-st.lastRx>CONFIG.SOCKET_STALE_MS){try{st.ws.close()}catch{}}
- }
- for(const x of universe){
-  const sym=x.symbol,h=healthOf(sym);
-  if(h.bookRx&&t-h.bookRx>CONFIG.SOCKET_STALE_MS){
-   clearBook(sym);
-   const st=sockets.find(q=>q.symbols.includes(sym));
-   if(st?.ws?.readyState===1){
-    try{
-     st.ws.send(JSON.stringify({op:"unsubscribe",args:[`orderbook.${CONFIG.ORDERBOOK_DEPTH}.${sym}`,`publicTrade.${sym}`]}));
-     st.ws.send(JSON.stringify({op:"subscribe",args:[`orderbook.${CONFIG.ORDERBOOK_DEPTH}.${sym}`,`publicTrade.${sym}`]}));
-    }catch{}
-    
-   }
+
+function num(v,d=0){
+  const n=Number(v);
+  return Number.isFinite(n)?n:d;
+}
+
+function clamp(v,a,b){
+  return Math.max(a,Math.min(b,v));
+}
+
+function sleep(ms){
+  return new Promise(r=>setTimeout(r,ms));
+}
+
+function fmtUsd(v){
+  v=num(v);
+  if(v>=1000000)return "$"+(v/1000000).toFixed(2)+"M";
+  if(v>=1000)return "$"+(v/1000).toFixed(1)+"K";
+  return "$"+Math.round(v);
+}
+
+function fmtPrice(v){
+  v=num(v);
+  if(!v)return "—";
+  if(v>=1000)return v.toLocaleString("en-US",{maximumFractionDigits:2});
+  if(v>=1)return v.toFixed(4);
+  if(v>=.01)return v.toFixed(5);
+  return v.toPrecision(6);
+}
+
+function fmtPct(v){
+  return num(v).toFixed(3)+"%";
+}
+
+function tickRound(symbol,price){
+  const m=instruments.get(symbol);
+  const tick=num(m?.tickSize);
+  if(!tick)return price;
+  return Math.round(price/tick)*tick;
+}
+
+function pricePct(a,b){
+  a=num(a);b=num(b);
+  if(!a||!b)return 999;
+  return Math.abs(a-b)/b*100;
+}
+
+function log(msg){
+  if(!CONFIG.DEBUG)return;
+  const el=$("diagnostics");
+  if(!el)return;
+  el.textContent=(new Date().toLocaleTimeString()+" "+msg+"\n"+el.textContent).slice(0,6000);
+}
+
+function setStatus(text,type=""){
+  $("statusText").textContent=text;
+  $("statusDot").className="dot "+type;
+}
+
+function ensureBook(symbol){
+  if(!books.has(symbol)){
+    books.set(symbol,{
+      bids:new Map(),
+      asks:new Map(),
+      lastPrice:0,
+      lastTradePrice:0,
+      bestBid:0,
+      bestAsk:0,
+      spreadPct:999,
+      updateId:0,
+      seq:0,
+      valid:false,
+      lastRx:0,
+      lastCts:0,
+      snapshotAt:0,
+      resyncing:false
+    });
   }
- }
+  return books.get(symbol);
 }
-    async function start(){if(running)return;running=true;setStatus("Загрузка instruments…");try{await loadInstruments();await loadUniverse();setStatus("Загрузка HTF…");await refreshHTF();startSockets();scanTimer=setInterval(scan,CONFIG.SCAN_MS);managerTimer=setInterval(manage,CONFIG.MANAGER_MS);reconnectTimer=setInterval(reconnectCheck,2000);uiTimer=setInterval(()=>{stats();render()},CONFIG.UI_MS);htfTimer=setInterval(refreshHTF,CONFIG.HTF_REFRESH_MS);universeTimer=setInterval(async()=>{if(!running)return;try{const old=new Set(universe.map(x=>x.symbol));await loadUniverse();const changed=universe.some(x=>!old.has(x.symbol))||old.size!==universe.length;if(changed){setStatus("Universe changed → resync WS…");startSockets()}}catch(e){console.warn(e)}},600000);setStatus("Работает • data-driven")}catch(e){running=false;closeSockets();setStatus("Ошибка: "+e.message);console.error(e)}}
-function stop(){running=false;clearInterval(scanTimer);clearInterval(managerTimer);clearInterval(uiTimer);clearInterval(htfTimer);clearInterval(universeTimer);clearInterval(reconnectTimer);closeSockets();setStatus("Остановлен")}
-function clearAll(){signals.clear();wallStates.clear();cooldowns.clear();setupHistory.clear();dirty.clear();paper.open.clear();paper.closed.length=0;paper.wins=0;paper.losses=0;paper.totalR=0;render();stats()}
-$("startBtn").onclick=start;$("stopBtn").onclick=stop;$("clearBtn").onclick=clearAll;document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&running){for(const s of universe.map(x=>x.symbol))markDirty(s)}});
-    window.BybitInstitutionalOF={config:CONFIG,start,stop,clear:clearAll,signals,books,trades,walls:wallStates,diagnostics:()=>({running,symbols:universe.length,sockets:sockets.length,signals:signals.size,wsMessages:metrics.wsMessages,paper:{open:paper.open.size,closed:paper.closed.length,wins:paper.wins,losses:paper.losses,totalR:paper.totalR}})};
-render();stats();
+
+function ensureTrades(symbol){
+  if(!trades.has(symbol))trades.set(symbol,[]);
+  return trades.get(symbol);
+}
+
+function ensureHealth(symbol){
+  const b=ensureBook(symbol);
+  if(!b.health){
+    b.health={
+      bookRx:0,
+      tradeRx:0,
+      lastBookCts:0,
+      lastTradeTs:0,
+      sequenceResets:0,
+      reconnects:0,
+      errors:0
+    };
+  }
+  return b.health;
+}
+
+function markCooldown(symbol,side,ms){
+  cooldowns.set(symbol+":"+side,now()+ms);
+}
+
+function cooldownActive(symbol,side){
+  return num(cooldowns.get(symbol+":"+side))>now();
+}
+
+function getCurrentPrice(symbol){
+  const b=books.get(symbol);
+  const m=market.get(symbol);
+  return num(
+    b?.lastTradePrice ||
+    b?.lastPrice ||
+    m?.lastPrice ||
+    ((b?.bestBid||0)+(b?.bestAsk||0))/2
+  );
+}
+
+function isBookFresh(symbol){
+  const b=books.get(symbol);
+  return !!(
+    b &&
+    b.valid &&
+    b.bestBid>0 &&
+    b.bestAsk>0 &&
+    now()-b.lastRx<CONFIG.WS_STALE_MS
+  );
+}
+
+function isTradeFresh(symbol){
+  const b=books.get(symbol);
+  return !!(b?.health?.tradeRx && now()-b.health.tradeRx<CONFIG.FLOW_FRESH_MS);
+}
+
+function currentUniverse(){
+  return [...market.values()]
+    .sort((a,b)=>b.turnover24h-a.turnover24h)
+    .slice(0,CONFIG.TOP_SYMBOLS)
+    .map(x=>x.symbol);
+}
+
+/* =========================================================
+   REST
+   ========================================================= */
+
+async function rest(path,params={},timeout=12000){
+  const qs=new URLSearchParams(params);
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),timeout);
+
+  try{
+    const r=await fetch(CONFIG.REST_BASE+path+"?"+qs,{
+      signal:controller.signal,
+      cache:"no-store"
+    });
+
+    if(!r.ok)throw new Error("HTTP "+r.status);
+
+    const j=await r.json();
+
+    if(j.retCode!==0)throw new Error(j.retMsg||"Bybit error");
+
+    return j;
+  }finally{
+    clearTimeout(timer);
+  }
+}
+
+async function loadInstruments(){
+  let cursor="";
+
+  do{
+    const p={
+      category:"linear",
+      limit:"1000"
+    };
+
+    if(cursor)p.cursor=cursor;
+
+    const j=await rest("/v5/market/instruments-info",p);
+
+    for(const x of j.result.list||[]){
+      if(
+        x.status==="Trading" &&
+        x.contractType==="LinearPerpetual" &&
+        x.quoteCoin==="USDT"
+      ){
+        instruments.set(x.symbol,{
+          symbol:x.symbol,
+          tickSize:num(x.priceFilter?.tickSize),
+          qtyStep:num(x.lotSizeFilter?.qtyStep),
+          minOrderQty:num(x.lotSizeFilter?.minOrderQty)
+        });
+      }
+    }
+
+    cursor=j.result.nextPageCursor||"";
+
+    if(cursor)await sleep(150);
+
+  }while(cursor);
+
+  log("instruments "+instruments.size);
+}
+
+async function loadUniverse(){
+  const j=await rest("/v5/market/tickers",{
+    category:"linear"
+  });
+
+  const arr=[];
+
+  for(const x of j.result.list||[]){
+    const symbol=x.symbol;
+
+    if(
+      !symbol.endsWith("USDT") ||
+      EXCLUDED.has(symbol) ||
+      !instruments.has(symbol)
+    )continue;
+
+    const price=num(x.lastPrice);
+    const turnover=num(x.turnover24h);
+
+    if(price<=0||turnover<=0)continue;
+
+    arr.push({
+      symbol,
+      lastPrice:price,
+      turnover24h:turnover,
+      fundingRate:num(x.fundingRate),
+      openInterest:num(x.openInterest),
+      markPrice:num(x.markPrice),
+      indexPrice:num(x.indexPrice)
+    });
+  }
+
+  arr.sort((a,b)=>b.turnover24h-a.turnover24h);
+
+  market.clear();
+
+  arr.slice(0,CONFIG.TOP_SYMBOLS).forEach((x,i)=>{
+    x.rank=i+1;
+    market.set(x.symbol,x);
+    ensureBook(x.symbol);
+    ensureTrades(x.symbol);
+    ensureHealth(x.symbol);
+  });
+
+  return currentUniverse();
+}
+
+async function loadKlines(symbol,interval,limit=120){
+  const j=await rest("/v5/market/kline",{
+    category:"linear",
+    symbol,
+    interval,
+    limit:String(limit)
+  });
+
+  const out=[];
+
+  for(const k of j.result.list||[]){
+    const start=num(k[0]);
+    const open=num(k[1]);
+    const high=num(k[2]);
+    const low=num(k[3]);
+    const close=num(k[4]);
+
+    if(!start||!open||!high||!low||!close)continue;
+
+    const mins=Number(interval);
+    const end=start+(Number.isFinite(mins)?mins:15)*60000;
+
+    if(end>=now())continue;
+
+    out.push({start,open,high,low,close,end});
+  }
+
+  return out.reverse();
+}
+
+function atr(candles,n=14){
+  if(candles.length<n+1)return 0;
+
+  const trs=[];
+
+  for(let i=1;i<candles.length;i++){
+    const c=candles[i];
+    const p=candles[i-1];
+
+    trs.push(Math.max(
+      c.high-c.low,
+      Math.abs(c.high-p.close),
+      Math.abs(c.low-p.close)
+    ));
+  }
+
+  let a=trs.slice(0,n).reduce((x,y)=>x+y,0)/n;
+
+  for(let i=n;i<trs.length;i++){
+    a=((a*(n-1))+trs[i])/n;
+  }
+
+  return a;
+}
+
+function swingZones(candles){
+  const zones=[];
+
+  for(let i=2;i<candles.length-2;i++){
+    const c=candles[i];
+
+    if(
+      c.low<=candles[i-1].low &&
+      c.low<=candles[i-2].low &&
+      c.low<candles[i+1].low &&
+      c.low<candles[i+2].low
+    ){
+      zones.push({
+        type:"SUPPORT",
+        price:c.low,
+        strength:1,
+        time:c.end
+      });
+    }
+
+    if(
+      c.high>=candles[i-1].high &&
+      c.high>=candles[i-2].high &&
+      c.high>candles[i+1].high &&
+      c.high>candles[i+2].high
+    ){
+      zones.push({
+        type:"RESISTANCE",
+        price:c.high,
+        strength:1,
+        time:c.end
+      });
+    }
+  }
+
+  return zones;
+}
+
+function mergeZones(zones){
+  const result=[];
+
+  for(const z of zones.sort((a,b)=>a.price-b.price)){
+    const existing=result.find(x=>
+      x.type===z.type &&
+      pricePct(x.price,z.price)<=0.18
+    );
+
+    if(existing){
+      existing.price=(existing.price+z.price)/2;
+      existing.strength+=z.strength;
+    }else{
+      result.push({...z});
+    }
+  }
+
+  return result;
+}
+
+async function refreshHTFSymbol(symbol){
+  try{
+    const [m15,h1,h4]=await Promise.all([
+      loadKlines(symbol,"15",160),
+      loadKlines(symbol,"60",120),
+      loadKlines(symbol,"240",100)
+    ]);
+
+    const all=[
+      ...swingZones(m15).map(x=>({...x,tf:"15M"})),
+      ...swingZones(h1).map(x=>({...x,tf:"1H"})),
+      ...swingZones(h4).map(x=>({...x,tf:"4H"}))
+    ];
+
+    htf.set(symbol,{
+      zones:mergeZones(all),
+      atr15:atr(m15,14),
+      atr60:atr(h1,14),
+      atr240:atr(h4,14),
+      updatedAt:now()
+    });
+
+  }catch(e){
+    globalErrors++;
+    log("HTF "+symbol+" "+e.message);
+  }
+}
+
+async function refreshHTF(){
+  const syms=currentUniverse();
+
+  for(let i=0;i<syms.length;i+=CONFIG.HTF_BATCH){
+    if(!running)return;
+
+    const batch=syms.slice(i,i+CONFIG.HTF_BATCH);
+
+    await Promise.all(batch.map(refreshHTFSymbol));
+
+    await sleep(CONFIG.HTF_DELAY_MS);
+  }
+}
+
+function nearestHTF(symbol,price,type){
+  const data=htf.get(symbol);
+
+  if(!data)return null;
+
+  const candidates=data.zones.filter(z=>{
+    if(type==="SUPPORT")return z.price<price;
+    return z.price>price;
+  });
+
+  candidates.sort((a,b)=>{
+    const da=Math.abs(a.price-price);
+    const db=Math.abs(b.price-price);
+    return da-db;
+  });
+
+  return candidates[0]||null;
+}
+
+/* =========================================================
+   ORDERBOOK
+   ========================================================= */
+
+function resetBook(symbol){
+  const b=ensureBook(symbol);
+
+  b.bids.clear();
+  b.asks.clear();
+  b.bestBid=0;
+  b.bestAsk=0;
+  b.valid=false;
+  b.resyncing=true;
+  b.updateId=0;
+  b.seq=0;
+}
+
+function applyLevels(map,levels){
+  for(const x of levels||[]){
+    const p=num(x[0]);
+    const q=num(x[1]);
+
+    if(p<=0)continue;
+
+    if(q<=0)map.delete(p);
+    else map.set(p,q);
+  }
+}
+
+function recalcBook(symbol){
+  const b=ensureBook(symbol);
+
+  let bid=0;
+  let ask=0;
+
+  for(const p of b.bids.keys()){
+    if(p>bid)bid=p;
+  }
+
+  for(const p of b.asks.keys()){
+    if(!ask||p<ask)ask=p;
+  }
+
+  b.bestBid=bid;
+  b.bestAsk=ask;
+
+  if(bid&&ask){
+    b.spreadPct=(ask-bid)/((ask+bid)/2)*100;
+  }else{
+    b.spreadPct=999;
+  }
+}
+
+function handleOrderbook(message){
+  const d=message.data||{};
+  const symbol=d.s||String(message.topic||"").split(".").pop();
+
+  if(!market.has(symbol))return;
+
+  const b=ensureBook(symbol);
+  const type=message.type;
+  const u=num(d.u);
+  const seq=num(d.seq);
+
+  if(type==="snapshot"){
+    resetBook(symbol);
+
+    applyLevels(b.bids,d.b);
+    applyLevels(b.asks,d.a);
+
+    b.updateId=u;
+    b.seq=seq;
+    b.valid=true;
+    b.resyncing=false;
+    b.snapshotAt=now();
+    b.lastRx=now();
+    b.lastCts=num(message.cts)||now();
+
+    recalcBook(symbol);
+
+    const h=ensureHealth(symbol);
+    h.bookRx=now();
+    h.lastBookCts=b.lastCts;
+
+    return;
+  }
+
+  if(type!=="delta"||!b.valid)return;
+
+  /*
+    Bybit's `u` is the orderbook update ID.
+    We only require monotonicity here.
+    `seq` is NOT assumed to be consecutive.
+  */
+  if(u && b.updateId && u<b.updateId){
+    return;
+  }
+
+  if(u && u===b.updateId){
+    return;
+  }
+
+  applyLevels(b.bids,d.b);
+  applyLevels(b.asks,d.a);
+
+  b.updateId=u||b.updateId;
+  b.seq=seq||b.seq;
+  b.lastRx=now();
+  b.lastCts=num(message.cts)||b.lastCts;
+
+  recalcBook(symbol);
+
+  const h=ensureHealth(symbol);
+  h.bookRx=now();
+  h.lastBookCts=b.lastCts;
+}
+
+function getLevels(symbol,side){
+  const b=books.get(symbol);
+  if(!b)return [];
+
+  const price=getCurrentPrice(symbol);
+  if(!price)return [];
+
+  const map=side==="BID"?b.bids:b.asks;
+
+  const arr=[];
+
+  for(const [p,q] of map){
+    const distance=Math.abs(p-price)/price;
+
+    if(distance<=CONFIG.ORDERBOOK_DISTANCE){
+      arr.push({
+        price:p,
+        qty:q,
+        usd:p*q,
+        distance
+      });
+    }
+  }
+
+  arr.sort((a,b)=>side==="BID"?b.price-a.price:a.price-b.price);
+
+  return arr;
+}
+
+function median(a){
+  if(!a.length)return 0;
+  const x=[...a].sort((a,b)=>a-b);
+  const m=Math.floor(x.length/2);
+  return x.length%2?x[m]:(x[m-1]+x[m])/2;
+}
+
+function localLiquidity(symbol,side){
+  const levels=getLevels(symbol,side);
+  const values=levels.map(x=>x.usd).filter(x=>x>0);
+
+  return {
+    levels,
+    median:median(values),
+    mean:values.length?values.reduce((a,b)=>a+b,0)/values.length:0,
+    total:values.reduce((a,b)=>a+b,0)
+  };
+}
+
+function adaptiveWallThreshold(symbol,side){
+  const m=market.get(symbol);
+  const l=localLiquidity(symbol,side);
+
+  const turnover=num(m?.turnover24h);
+
+  let floor=15000;
+
+  if(turnover>=5e9)floor=750000;
+  else if(turnover>=1e9)floor=400000;
+  else if(turnover>=300e6)floor=200000;
+  else if(turnover>=100e6)floor=100000;
+  else if(turnover>=30e6)floor=50000;
+  else floor=20000;
+
+  const turnoverPart=turnover*0.00001;
+  const localPart=Math.max(
+    l.median*4,
+    l.mean*2.8
+  );
+
+  return Math.max(
+    floor,
+    turnoverPart,
+    localPart
+  );
+}
+
+function clusterWalls(symbol,side){
+  const levels=getLevels(symbol,side);
+
+  if(!levels.length)return [];
+
+  const price=getCurrentPrice(symbol);
+  const tick=num(instruments.get(symbol)?.tickSize);
+
+  const gap=Math.max(
+    tick*12,
+    price*0.00022
+  );
+
+  const clusters=[];
+
+  for(const l of levels){
+    let c=clusters.find(x=>Math.abs(x.center-l.price)<=gap);
+
+    if(!c){
+      c={
+        side,
+        center:l.price,
+        totalUsd:0,
+        maxUsd:0,
+        levels:[],
+        distance:Math.abs(l.price-price)/price
+      };
+      clusters.push(c);
+    }
+
+    c.totalUsd+=l.usd;
+    c.maxUsd=Math.max(c.maxUsd,l.usd);
+    c.levels.push(l);
+    c.center=(c.center+l.price)/2;
+  }
+
+  const threshold=adaptiveWallThreshold(symbol,side);
+
+  return clusters.map(c=>{
+    const concentration=c.maxUsd/Math.max(c.totalUsd,1);
+    const ratio=c.totalUsd/Math.max(threshold,1);
+
+    return {
+      ...c,
+      concentration,
+      ratio,
+      threshold
+    };
+  }).filter(c=>
+    c.maxUsd>=c.threshold &&
+    c.ratio>=CONFIG.MIN_WALL_RATIO &&
+    c.concentration>=CONFIG.MIN_WALL_CONCENTRATION &&
+    c.distance<=CONFIG.WALL_DISTANCE
+  );
+}
+ /* =========================================================
+   PART 2/8
+   WEBSOCKET ENGINE + TRADE FLOW + CONNECTION RECOVERY
+   ========================================================= */
+
+function wallKey(symbol,side,price){
+  const tick=num(instruments.get(symbol)?.tickSize)||0.0001;
+  const bucket=Math.max(tick*8,price*0.00012);
+  return symbol+":"+side+":"+Math.round(price/bucket);
+}
+
+/* ---------- Trade Engine ---------- */
+
+function handleTrades(message){
+
+  const list=message.data||[];
+
+  for(const t of list){
+
+    const symbol=t.s;
+
+    if(!market.has(symbol))continue;
+
+    const buf=ensureTrades(symbol);
+    const book=ensureBook(symbol);
+
+    const price=num(t.p);
+    const qty=num(t.v);
+
+    if(price<=0||qty<=0)continue;
+
+    // Bybit: S = Buy / Sell
+    const side=String(t.S||"").toUpperCase();
+
+    buf.push({
+      id:t.i,
+      price,
+      qty,
+      usd:price*qty,
+      side,
+      exchangeTime:num(t.T)||now(),
+      receivedTime:now()
+    });
+
+    while(buf.length>CONFIG.MAX_TRADES){
+      buf.shift();
+    }
+
+    const cut=now()-CONFIG.FLOW_BASELINE_MS;
+
+    while(buf.length&&buf[0].receivedTime<cut){
+      buf.shift();
+    }
+
+    book.lastTradePrice=price;
+    book.lastPrice=price;
+
+    const h=ensureHealth(symbol);
+    h.tradeRx=now();
+    h.lastTradeTs=num(t.T)||now();
+  }
+
+}
+
+/* ---------- Flow ---------- */
+
+function recentTrades(symbol,windowMs){
+
+  const buf=trades.get(symbol)||[];
+
+  const cut=now()-windowMs;
+
+  return buf.filter(x=>x.receivedTime>=cut);
+
+}
+
+function aggressiveFlow(symbol){
+
+  const arr=recentTrades(symbol,CONFIG.FLOW_WINDOW_MS);
+
+  let buy=0;
+  let sell=0;
+
+  for(const t of arr){
+
+    if(t.side==="BUY")buy+=t.usd;
+    else if(t.side==="SELL")sell+=t.usd;
+
+  }
+
+  const total=buy+sell;
+
+  return{
+    buy,
+    sell,
+    total,
+    delta:buy-sell,
+    imbalance:total?(buy-sell)/total:0
+  };
+
+}
+
+function baselineFlow(symbol){
+
+  const arr=recentTrades(symbol,CONFIG.FLOW_BASELINE_MS);
+
+  const buckets=new Map();
+
+  for(const t of arr){
+
+    const k=Math.floor(t.receivedTime/5000);
+
+    buckets.set(k,(buckets.get(k)||0)+t.usd);
+
+  }
+
+  const values=[...buckets.values()].sort((a,b)=>a-b);
+
+  const med=median(values);
+
+  return{
+    median:med,
+    intensity:med?aggressiveFlow(symbol).total/(med*4):0
+  };
+
+}
+
+/* =========================================================
+   WEBSOCKET MANAGER
+   ========================================================= */
+
+let socketCounter=0;
+
+function currentSocketGroups(){
+
+  const symbols=currentUniverse();
+
+  const groups=[];
+
+  for(let i=0;i<symbols.length;i+=CONFIG.WS_GROUP_SIZE){
+    groups.push(symbols.slice(i,i+CONFIG.WS_GROUP_SIZE));
+  }
+
+  return groups;
+
+}
+
+function closeSockets(){
+
+  while(sockets.length){
+
+    const s=sockets.pop();
+
+    s.manual=true;
+
+    clearInterval(s.ping);
+
+    clearTimeout(s.reconnect);
+
+    try{s.ws.close();}catch(e){}
+
+  }
+
+}
+
+function buildSocket(group){
+
+  const state={
+    id:++socketCounter,
+    symbols:group,
+    ws:null,
+    ping:null,
+    reconnect:null,
+    manual:false,
+    attempt:0,
+    lastRx:0
+  };
+
+  function connect(){
+
+    if(state.manual||!running)return;
+
+    const ws=new WebSocket(CONFIG.WS_URL);
+
+    state.ws=ws;
+
+    ws.onopen=()=>{
+
+      state.attempt=0;
+      state.lastRx=now();
+
+      const args=[];
+
+      for(const symbol of group){
+
+        resetBook(symbol);
+
+        args.push(`orderbook.${CONFIG.ORDERBOOK_DEPTH}.${symbol}`);
+        args.push(`publicTrade.${symbol}`);
+
+      }
+
+      ws.send(JSON.stringify({
+        op:"subscribe",
+        args
+      }));
+
+      state.ping=setInterval(()=>{
+
+        if(ws.readyState===WebSocket.OPEN){
+
+          ws.send(JSON.stringify({op:"ping"}));
+
+        }
+
+      },CONFIG.WS_PING_MS);
+
+    };
+
+    ws.onmessage=e=>{
+
+      state.lastRx=now();
+
+      let msg;
+
+      try{
+        msg=JSON.parse(e.data);
+      }catch{
+        return;
+      }
+
+      if(msg.op==="pong")return;
+
+      if(msg.topic?.startsWith("orderbook.")){
+        handleOrderbook(msg);
+      }else if(msg.topic?.startsWith("publicTrade.")){
+        handleTrades(msg);
+      }
+
+    };
+
+    ws.onerror=()=>{
+
+      globalErrors++;
+
+    };
+
+    ws.onclose=()=>{
+
+      clearInterval(state.ping);
+
+      if(state.manual||!running)return;
+
+      for(const s of group){
+
+        resetBook(s);
+
+        ensureHealth(s).reconnects++;
+
+      }
+
+      reconnect();
+
+    };
+
+  }
+
+  function reconnect(){
+
+    const delay=Math.min(
+      15000,
+      1000*Math.pow(2,state.attempt++)
+    );
+
+    state.reconnect=setTimeout(connect,delay);
+
+  }
+
+  state.connect=connect;
+
+  connect();
+
+  return state;
+
+}
+
+function openSockets(){
+
+  closeSockets();
+
+  const groups=currentSocketGroups();
+
+  for(const g of groups){
+    sockets.push(buildSocket(g));
+  }
+
+}
+
+/* =========================================================
+   WATCHDOG
+   ========================================================= */
+
+function watchdog(){
+
+  const t=now();
+
+  for(const socket of sockets){
+
+    if(!socket.ws)continue;
+
+    if(
+      socket.ws.readyState===WebSocket.OPEN &&
+      t-socket.lastRx>CONFIG.WS_STALE_MS
+    ){
+
+      try{
+        socket.ws.close();
+      }catch(e){}
+
+    }
+
+  }
+
+  for(const symbol of currentUniverse()){
+
+    const b=books.get(symbol);
+
+    if(!b)continue;
+
+    if(
+      b.valid &&
+      t-b.lastRx>CONFIG.WS_STALE_MS
+    ){
+
+      resetBook(symbol);
+
+      const sock=sockets.find(x=>x.symbols.includes(symbol));
+
+      if(sock&&sock.ws.readyState===WebSocket.OPEN){
+
+        sock.ws.send(JSON.stringify({
+          op:"unsubscribe",
+          args:[
+            `orderbook.${CONFIG.ORDERBOOK_DEPTH}.${symbol}`,
+            `publicTrade.${symbol}`
+          ]
+        }));
+
+        sock.ws.send(JSON.stringify({
+          op:"subscribe",
+          args:[
+            `orderbook.${CONFIG.ORDERBOOK_DEPTH}.${symbol}`,
+            `publicTrade.${symbol}`
+          ]
+        }));
+
+      }
+
+    }
+
+  }
+
+}
+
+/* =========================================================
+   UNIVERSE REFRESH
+   ========================================================= */
+
+async function refreshUniverse(){
+
+  const before=currentUniverse().join("|");
+
+  await loadUniverse();
+
+  const after=currentUniverse().join("|");
+
+  if(before!==after){
+
+    currentUniverseKey=after;
+
+    openSockets();
+
+    log("Universe updated");
+
+  }
+
+}
+ /* =========================================================
+   PART 3/8
+   INSTITUTIONAL WALL ENGINE
+   Spoof / Iceberg / Replenishment / Absorption
+   ========================================================= */
+
+function wallState(symbol, side, price){
+
+  const key=wallKey(symbol,side,price);
+
+  if(!walls.has(key)){
+
+    walls.set(key,{
+
+      key,
+      symbol,
+      side,
+      price,
+
+      firstSeen:now(),
+      lastSeen:now(),
+
+      peakUsd:0,
+      currentUsd:0,
+
+      removedUsd:0,
+      addedUsd:0,
+
+      executedUsd:0,
+      cancelledUsd:0,
+
+      replenishments:0,
+      tests:0,
+
+      state:"NEW",
+
+      absorption:0,
+      spoof:0,
+
+      lastPriceDistance:999
+
+    });
+
+  }
+
+  return walls.get(key);
+
+}
+
+/* ---------- Wall update ---------- */
+
+function updateWall(symbol, cluster){
+
+  const state=wallState(symbol,cluster.side,cluster.center);
+
+  const previous=state.currentUsd||cluster.maxUsd;
+
+  state.lastSeen=now();
+  state.price=cluster.center;
+  state.currentUsd=cluster.maxUsd;
+  state.peakUsd=Math.max(state.peakUsd,cluster.maxUsd);
+
+  const delta=cluster.maxUsd-previous;
+
+  if(delta>0){
+
+    state.addedUsd+=delta;
+
+  }else if(delta<0){
+
+    state.removedUsd+=Math.abs(delta);
+
+  }
+
+  const flow=aggressiveFlow(symbol);
+
+  const attack=cluster.side==="BID"
+    ?flow.sell
+    :flow.buy;
+
+  const reduction=Math.max(previous-cluster.maxUsd,0);
+
+  const executed=Math.min(reduction,attack);
+
+  state.executedUsd=executed;
+  state.cancelledUsd=Math.max(reduction-executed,0);
+
+  state.absorption=state.peakUsd
+    ?executed/state.peakUsd
+    :0;
+
+  state.spoof=reduction
+    ?state.cancelledUsd/reduction
+    :0;
+
+  const price=getCurrentPrice(symbol);
+
+  state.lastPriceDistance=pricePct(price,state.price);
+
+  if(state.lastPriceDistance<=0.15){
+
+    state.tests++;
+
+  }
+
+  /* ---------- Replenishment ---------- */
+
+  if(
+    state.addedUsd>
+    state.removedUsd*0.35 &&
+    cluster.maxUsd>=state.peakUsd*0.70
+  ){
+
+    state.replenishments++;
+
+  }
+
+  /* ---------- Lifecycle ---------- */
+
+  const age=now()-state.firstSeen;
+
+  if(
+    state.spoof>0.85 &&
+    age<15000
+  ){
+
+    state.state="SPOOF";
+
+  }else if(
+
+    cluster.maxUsd<
+    state.peakUsd*0.15
+
+  ){
+
+    state.state="REMOVED";
+
+  }else if(
+
+    state.replenishments>=2
+
+  ){
+
+    state.state="ICEBERG";
+
+  }else if(
+
+    age>=CONFIG.WALL_STABLE_MS &&
+    state.tests>=2
+
+  ){
+
+    state.state="TESTED";
+
+  }else if(
+
+    age>=CONFIG.WALL_STABLE_MS
+
+  ){
+
+    state.state="STABLE";
+
+  }else{
+
+    state.state="NEW";
+
+  }
+
+  return state;
+
+}
+
+/* ---------- Full wall scan ---------- */
+
+function scanWalls(symbol){
+
+  const bidClusters=clusterWalls(symbol,"BID");
+  const askClusters=clusterWalls(symbol,"ASK");
+
+  const alive=new Set();
+
+  for(const c of [...bidClusters,...askClusters]){
+
+    const s=updateWall(symbol,c);
+
+    alive.add(s.key);
+
+  }
+
+  /* ---------- Cleanup ---------- */
+
+  for(const [key,state] of walls){
+
+    if(state.symbol!==symbol)continue;
+
+    if(
+
+      !alive.has(key) &&
+      now()-state.lastSeen>
+      CONFIG.WALL_TTL_MS
+
+    ){
+
+      walls.delete(key);
+
+    }
+
+  }
+
+}
+
+/* ---------- Best wall ---------- */
+
+function bestWall(symbol,direction){
+
+  const wanted=direction==="LONG"
+    ?"BID"
+    :"ASK";
+
+  const price=getCurrentPrice(symbol);
+
+  return [...walls.values()]
+    .filter(x=>
+
+      x.symbol===symbol &&
+      x.side===wanted &&
+      x.state!=="SPOOF" &&
+      x.state!=="REMOVED"
+
+    )
+    .sort((a,b)=>
+
+      pricePct(price,a.price)-
+      pricePct(price,b.price)
+
+    )[0]||null;
+
+}
+
+/* ---------- Wall quality ---------- */
+
+function wallScore(w){
+
+  if(!w)return 0;
+
+  let score=0;
+
+  const age=now()-w.firstSeen;
+
+  score+=Math.min(age/1000,25);
+
+  score+=Math.min(w.absorption*100,25);
+
+  score+=Math.min(w.replenishments*8,20);
+
+  score+=Math.min(w.tests*3,15);
+
+  score-=w.spoof*30;
+
+  if(w.state==="ICEBERG")score+=15;
+  if(w.state==="TESTED")score+=10;
+  if(w.state==="STABLE")score+=6;
+
+  return clamp(score,0,100);
+
+}
+
+/* =========================================================
+   FLOW CONTEXT
+   ========================================================= */
+
+function flowContext(symbol){
+
+  const flow=aggressiveFlow(symbol);
+
+  const base=baselineFlow(symbol);
+
+  const intensity=base.median
+    ?flow.total/(base.median*4)
+    :0;
+
+  const imbalance=flow.imbalance;
+
+  let direction="NEUTRAL";
+
+  if(imbalance>=0.18){
+
+    direction="BUY";
+
+  }else if(imbalance<=-0.18){
+
+    direction="SELL";
+
+  }
+
+  let score=35;
+
+  score+=Math.min(Math.abs(imbalance)*45,30);
+
+  score+=Math.min(intensity*10,20);
+
+  if(direction!=="NEUTRAL")score+=8;
+
+  return{
+
+    ...flow,
+
+    intensity,
+    direction,
+
+    score:clamp(score,0,100)
+
+  };
+
+}
+
+/* =========================================================
+   MARKET REACTION
+   ========================================================= */
+
+function marketReaction(symbol,direction){
+
+  const arr=recentTrades(symbol,10000);
+
+  if(arr.length<3){
+
+    return{
+      valid:false,
+      score:0,
+      move:0
+    };
+
+  }
+
+  const move=(
+    arr[arr.length-1].price-
+    arr[0].price
+  )/arr[0].price*100;
+
+  const desired=direction==="LONG"
+    ?move
+    :-move;
+
+  let score=0;
+
+  score+=Math.max(desired*70,0);
+
+  const flow=aggressiveFlow(symbol);
+
+  if(direction==="LONG"){
+
+    if(flow.buy>=flow.sell)score+=10;
+
+  }else{
+
+    if(flow.sell>=flow.buy)score+=10;
+
+  }
+
+  score=clamp(score,0,30);
+
+  return{
+
+    valid:true,
+    score,
+    move
+
+  };
+
+}
+
+/* =========================================================
+   WALL QUALITY GATE
+   ========================================================= */
+
+function wallGate(symbol,direction){
+
+  const wall=bestWall(symbol,direction);
+
+  if(!wall){
+
+    return null;
+
+  }
+
+  const quality=wallScore(wall);
+
+  if(quality<45){
+
+    return null;
+
+  }
+
+  return{
+
+    wall,
+    quality
+
+  };
+
+}
+ /* =========================================================
+   PART 4/8
+   SIGNAL ENGINE
+   HTF + Wall + Flow + Retest + Lifecycle
+   ========================================================= */
+
+/* ---------- HTF context ---------- */
+
+function htfContext(symbol,direction){
+
+  const data=htf.get(symbol);
+
+  if(!data)return null;
+
+  if(now()-data.updatedAt>CONFIG.HTF_REFRESH_MS+120000)return null;
+
+  const price=getCurrentPrice(symbol);
+
+  const zone=nearestHTF(
+    symbol,
+    price,
+    direction==="LONG"?"SUPPORT":"RESISTANCE"
+  );
+
+  if(!zone)return null;
+
+  const distance=pricePct(price,zone.price);
+
+  let score=0;
+
+  if(zone.tf==="4H")score+=35;
+  else if(zone.tf==="1H")score+=25;
+  else score+=15;
+
+  score+=Math.min(zone.strength*4,15);
+
+  score-=distance*8;
+
+  return{
+    zone,
+    score:clamp(score,0,50),
+    atr:data.atr15||data.atr60||price*0.004
+  };
+
+}
+
+/* ---------- TP target ---------- */
+
+function targetPrice(symbol,direction,entry,risk){
+
+  const data=htf.get(symbol);
+
+  if(data){
+
+    const zones=data.zones
+      .filter(z=>
+
+        direction==="LONG"
+          ?z.type==="RESISTANCE"&&z.price>entry
+          :z.type==="SUPPORT"&&z.price<entry
+
+      )
+      .sort((a,b)=>
+
+        Math.abs(a.price-entry)-
+        Math.abs(b.price-entry)
+
+      );
+
+    if(zones.length)return zones[0].price;
+
+  }
+
+  return direction==="LONG"
+    ?entry+risk*2
+    :entry-risk*2;
+
+}
+
+/* ---------- Setup ---------- */
+
+function buildSetup(symbol,direction){
+
+  const price=getCurrentPrice(symbol);
+
+  if(!price)return null;
+
+  const book=books.get(symbol);
+
+  if(!book||!book.valid)return null;
+
+  if(book.spreadPct>CONFIG.MAX_SPREAD_PCT)return null;
+
+  if(!isBookFresh(symbol))return null;
+
+  if(!isTradeFresh(symbol))return null;
+
+  const wallInfo=wallGate(symbol,direction);
+
+  if(!wallInfo)return null;
+
+  const flow=flowContext(symbol);
+
+  const reaction=marketReaction(symbol,direction);
+
+  const htfInfo=htfContext(symbol,direction);
+
+  if(!reaction.valid||!htfInfo)return null;
+
+  const aligned=direction==="LONG"
+    ?flow.direction!=="SELL"
+    :flow.direction!=="BUY";
+
+  let score=0;
+
+  score+=htfInfo.score;
+  score+=wallInfo.quality*0.45;
+  score+=flow.score*0.40;
+  score+=reaction.score;
+
+  if(aligned)score+=8;
+  else score-=18;
+
+  score=clamp(score,0,100);
+
+  if(score<CONFIG.MIN_SCORE)return null;
+
+  const entry=direction==="LONG"
+    ?book.bestAsk||price
+    :book.bestBid||price;
+
+  const stop=direction==="LONG"
+    ?Math.min(
+        wallInfo.wall.price,
+        htfInfo.zone.price
+      )-htfInfo.atr*0.35
+    :Math.max(
+        wallInfo.wall.price,
+        htfInfo.zone.price
+      )+htfInfo.atr*0.35;
+
+  const risk=Math.abs(entry-stop);
+
+  if(!risk)return null;
+
+  const tp=targetPrice(
+    symbol,
+    direction,
+    entry,
+    risk
+  );
+
+  const rr=Math.abs(tp-entry)/risk;
+
+  if(rr<CONFIG.MIN_RR)return null;
+
+  return{
+
+    symbol,
+
+    direction,
+
+    score,
+
+    entry:tickRound(symbol,entry),
+
+    stop:tickRound(symbol,stop),
+
+    tp:tickRound(symbol,tp),
+
+    rr,
+
+    wallKey:wallInfo.wall.key,
+
+    wallState:wallInfo.wall.state,
+
+    wallPrice:wallInfo.wall.price,
+
+    wallQuality:wallInfo.quality,
+
+    htfZone:htfInfo.zone,
+
+    created:now(),
+
+    expires:now()+CONFIG.SIGNAL_TTL_MS,
+
+    entryUntil:now()+CONFIG.ENTRY_WINDOW_MS,
+
+    status:"ENTRY",
+
+    leftWall:false,
+
+    retest:false,
+
+    fingerprint:
+      direction+":"+
+      wallInfo.wall.key+":"+
+      Math.round(entry/(htfInfo.atr||price*0.004))
+
+  };
+
+}
+
+/* ---------- Cooldown ---------- */
+
+const setupCooldowns=new Map();
+
+function setupLocked(fp){
+
+  return num(setupCooldowns.get(fp))>now();
+
+}
+
+function lockSetup(fp){
+
+  setupCooldowns.set(
+    fp,
+    now()+CONFIG.SETUP_COOLDOWN_MS
+  );
+
+}
+
+/* ---------- Opposite protection ---------- */
+
+function oppositeSignal(symbol,direction){
+
+  const s=signals.get(symbol);
+
+  if(!s)return false;
+
+  return s.direction!==direction;
+
+}
+
+/* ---------- Create signal ---------- */
+
+function createSignal(symbol,direction){
+
+  if(signals.has(symbol))return;
+
+  if(cooldownActive(symbol,direction))return;
+
+  if(oppositeSignal(symbol,direction))return;
+
+  const setup=buildSetup(symbol,direction);
+
+  if(!setup)return;
+
+  if(setupLocked(setup.fingerprint))return;
+
+  signals.set(symbol,setup);
+
+  markCooldown(
+    symbol,
+    direction,
+    CONFIG.COOLDOWN_MS
+  );
+
+  lockSetup(setup.fingerprint);
+
+}
+
+/* ---------- Retest logic ---------- */
+
+function updateRetest(signal){
+
+  const price=getCurrentPrice(signal.symbol);
+
+  if(!price)return;
+
+  const distance=pricePct(
+    price,
+    signal.wallPrice
+  );
+
+  if(!signal.leftWall){
+
+    if(distance>0.35){
+
+      signal.leftWall=true;
+
+    }
+
+    return;
+
+  }
+
+  if(signal.retest)return;
+
+  if(distance<=0.18){
+
+    if(signal.direction==="LONG"){
+
+      if(price>=signal.wallPrice){
+
+        signal.retest=true;
+        signal.status="HOLD";
+
+      }
+
+    }else{
+
+      if(price<=signal.wallPrice){
+
+        signal.retest=true;
+        signal.status="HOLD";
+
+      }
+
+    }
+
+  }
+
+}
+
+/* ---------- Validation ---------- */
+
+function signalValid(signal){
+
+  if(now()>signal.expires)return false;
+
+  const book=books.get(signal.symbol);
+
+  if(!book||!book.valid)return false;
+
+  if(!isBookFresh(signal.symbol))return false;
+
+  if(!isTradeFresh(signal.symbol))return false;
+
+  const wall=walls.get(signal.wallKey);
+
+  if(!wall)return false;
+
+  if(
+    wall.state==="SPOOF"||
+    wall.state==="REMOVED"
+  )return false;
+
+  const flow=flowContext(signal.symbol);
+
+  if(signal.direction==="LONG"){
+
+    if(flow.imbalance<-0.50)return false;
+
+  }else{
+
+    if(flow.imbalance>0.50)return false;
+
+  }
+
+  const price=getCurrentPrice(signal.symbol);
+
+  if(signal.direction==="LONG"){
+
+    if(price<=signal.stop)return false;
+
+  }else{
+
+    if(price>=signal.stop)return false;
+
+  }
+
+  return true;
+
+}
+
+/* ---------- Manager ---------- */
+
+function manageSignals(){
+
+  for(const [symbol,signal] of signals){
+
+    if(!signalValid(signal)){
+
+      signals.delete(symbol);
+
+      continue;
+
+    }
+
+    updateRetest(signal);
+
+    const price=getCurrentPrice(symbol);
+
+    if(signal.direction==="LONG"){
+
+      if(price>=signal.tp){
+
+        signal.status="TARGET";
+
+      }
+
+    }else{
+
+      if(price<=signal.tp){
+
+        signal.status="TARGET";
+
+      }
+
+    }
+
+    if(
+      signal.status==="ENTRY" &&
+      now()>signal.entryUntil
+    ){
+
+      signal.status="WAIT";
+
+    }
+
+  }
+
+}
+
+/* ---------- Scan symbol ---------- */
+
+function scanSymbol(symbol){
+
+  scanWalls(symbol);
+
+  if(signals.has(symbol))return;
+
+  const longSetup=buildSetup(symbol,"LONG");
+  const shortSetup=buildSetup(symbol,"SHORT");
+
+  if(longSetup&&shortSetup){
+
+    if(
+      Math.abs(
+        longSetup.score-shortSetup.score
+      )<CONFIG.MIN_DIRECTION_MARGIN
+    ){
+
+      return;
+
+    }
+
+    if(longSetup.score>shortSetup.score){
+
+      createSignal(symbol,"LONG");
+
+    }else{
+
+      createSignal(symbol,"SHORT");
+
+    }
+
+    return;
+
+  }
+
+  if(longSetup){
+
+    createSignal(symbol,"LONG");
+
+    return;
+
+  }
+
+  if(shortSetup){
+
+    createSignal(symbol,"SHORT");
+
+  }
+
+}
+
+/* ---------- Scan cycle ---------- */
+
+function scanEngine(){
+
+  scanCycle++;
+
+  for(const symbol of currentUniverse()){
+
+    try{
+
+      scanSymbol(symbol);
+
+    }catch(e){
+
+      globalErrors++;
+
+      log("scan "+symbol+" "+e.message);
+
+    }
+
+  }
+
+}
+ /* =========================================================
+   PART 5/8
+   UI ENGINE + DIAGNOSTICS + START/STOP
+   ========================================================= */
+
+/* ---------- UI stats ---------- */
+
+function updateStats(){
+
+  let booksOk=0;
+  let flowOk=0;
+  let wallCount=0;
+
+  for(const symbol of currentUniverse()){
+
+    if(isBookFresh(symbol))booksOk++;
+    if(isTradeFresh(symbol))flowOk++;
+
+  }
+
+  for(const w of walls.values()){
+
+    if(now()-w.lastSeen<CONFIG.WALL_TTL_MS){
+
+      wallCount++;
+
+    }
+
+  }
+
+  $("statCoins").textContent=currentUniverse().length;
+  $("statBooks").textContent=booksOk;
+  $("statFlow").textContent=flowOk;
+  $("statWalls").textContent=wallCount;
+  $("statSignals").textContent=signals.size;
+  $("statWs").textContent=sockets.length;
+  $("statErrors").textContent=globalErrors;
+
+  const lag=Math.max(
+    0,
+    now()-lastEngineTick
+  );
+
+  $("statLag").textContent=lag+"ms";
+
+}
+
+/* ---------- Diagnostics ---------- */
+
+function diagnostics(){
+
+  const out=[];
+
+  out.push("Running: "+running);
+  out.push("Universe: "+currentUniverse().length);
+  out.push("Signals: "+signals.size);
+  out.push("Walls: "+walls.size);
+  out.push("Sockets: "+sockets.length);
+  out.push("");
+
+  for(const s of sockets){
+
+    out.push(
+      "WS#"+s.id+
+      " ["+s.symbols.length+"] "+
+      (s.ws?.readyState===1?"OPEN":"CLOSED")+
+      " lastRx="+(now()-s.lastRx)+"ms"
+    );
+
+  }
+
+  out.push("");
+
+  let shown=0;
+
+  for(const symbol of currentUniverse()){
+
+    const b=books.get(symbol);
+
+    if(!b||shown>=8)continue;
+
+    out.push(
+      symbol+
+      " book="+(b.valid?"OK":"NO")+
+      " spread="+fmtPct(b.spreadPct)+
+      " last="+fmtPrice(getCurrentPrice(symbol))
+    );
+
+    shown++;
+
+  }
+
+  $("diagnostics").textContent=out.join("\n");
+
+}
+
+/* ---------- Signal card ---------- */
+
+function signalCard(signal){
+
+  const wall=walls.get(signal.wallKey);
+
+  const wallStateText=wall
+    ?wall.state
+    :signal.wallState;
+
+  const price=getCurrentPrice(signal.symbol);
+
+  return `
+<div class="signal ${signal.direction.toLowerCase()}">
+
+<div class="sig-head">
+
+<div>
+
+<div class="direction">
+${signal.symbol}
+</div>
+
+<div class="small muted">
+${signal.direction} • ${signal.status}
+</div>
+
+</div>
+
+<div class="badge">
+${Math.round(signal.score)}/100
+</div>
+
+</div>
+
+<div class="grid">
+
+<div class="cell">
+<span>ENTRY</span>
+<b>${fmtPrice(signal.entry)}</b>
+</div>
+
+<div class="cell">
+<span>STOP</span>
+<b class="bad">${fmtPrice(signal.stop)}</b>
+</div>
+
+<div class="cell">
+<span>TARGET</span>
+<b class="good">${fmtPrice(signal.tp)}</b>
+</div>
+
+<div class="cell">
+<span>PRICE</span>
+<b>${fmtPrice(price)}</b>
+</div>
+
+<div class="cell">
+<span>R:R</span>
+<b>${signal.rr.toFixed(2)}</b>
+</div>
+
+<div class="cell">
+<span>WALL</span>
+<b>${wallStateText}</b>
+</div>
+
+</div>
+
+<div style="margin-top:8px" class="small">
+
+<div>Wall quality:
+<b>${Math.round(signal.wallQuality)}</b></div>
+
+<div>HTF:
+<b>${signal.htfZone.tf}</b></div>
+
+<div>Zone:
+<b>${fmtPrice(signal.htfZone.price)}</b></div>
+
+<div>Retest:
+<b class="${signal.retest?'good':'warn'}">
+${signal.retest?"YES":"WAIT"}
+</b></div>
+
+</div>
+
+</div>
+`;
+
+}
+
+/* ---------- Render ---------- */
+
+function renderSignals(){
+
+  const root=$("signals");
+
+  if(!signals.size){
+
+    root.innerHTML=
+    '<div class="empty">Ожидание подтверждённых сетапов...</div>';
+
+    return;
+
+  }
+
+  const list=[...signals.values()]
+    .sort((a,b)=>b.score-a.score);
+
+  root.innerHTML=list
+    .map(signalCard)
+    .join("");
+
+}
+
+/* ---------- Render all ---------- */
+
+function render(){
+
+  updateStats();
+  renderSignals();
+  diagnostics();
+
+}
+
+/* =========================================================
+   ENGINE LOOP
+   ========================================================= */
+
+function engineLoop(){
+
+  if(!running)return;
+
+  lastEngineTick=now();
+
+  scanEngine();
+
+}
+
+function managerLoop(){
+
+  if(!running)return;
+
+  manageSignals();
+
+}
+
+/* =========================================================
+   START
+   ========================================================= */
+
+async function start(){
+
+  if(running)return;
+
+  running=true;
+
+  setStatus("Инициализация...","warn");
+
+  try{
+
+    await loadInstruments();
+
+    await loadUniverse();
+
+    currentUniverseKey=currentUniverse().join("|");
+
+    setStatus("Загрузка HTF...","warn");
+
+    await refreshHTF();
+
+    openSockets();
+
+    engineTimer=setInterval(
+      engineLoop,
+      CONFIG.SCAN_MS
+    );
+
+    managerTimer=setInterval(
+      managerLoop,
+      CONFIG.MANAGER_MS
+    );
+
+    uiTimer=setInterval(
+      render,
+      CONFIG.UI_MS
+    );
+
+    universeTimer=setInterval(
+      refreshUniverse,
+      600000
+    );
+
+    htfTimer=setInterval(
+      refreshHTF,
+      CONFIG.HTF_REFRESH_MS
+    );
+
+    setStatus("Мониторинг запущен","ok");
+
+    render();
+
+  }catch(e){
+
+    running=false;
+
+    globalErrors++;
+
+    setStatus("Ошибка запуска","err");
+
+    console.error(e);
+
+  }
+
+}
+
+/* =========================================================
+   STOP
+   ========================================================= */
+
+function stop(){
+
+  running=false;
+
+  clearInterval(engineTimer);
+  clearInterval(managerTimer);
+  clearInterval(uiTimer);
+  clearInterval(universeTimer);
+  clearInterval(htfTimer);
+
+  engineTimer=null;
+  managerTimer=null;
+  uiTimer=null;
+  universeTimer=null;
+  htfTimer=null;
+
+  closeSockets();
+
+  setStatus("Остановлен","");
+
+}
+
+/* ---------- Clear ---------- */
+
+function clearSignals(){
+
+  signals.clear();
+
+  walls.clear();
+
+  cooldowns.clear();
+
+  render();
+
+}
+
+/* ---------- Buttons ---------- */
+
+$("startBtn").onclick=start;
+$("stopBtn").onclick=stop;
+$("clearBtn").onclick=clearSignals;
+
+/* ---------- Visibility ---------- */
+
+document.addEventListener("visibilitychange",()=>{
+
+  if(
+    document.visibilityState==="visible" &&
+    running
+  ){
+
+    openSockets();
+
+  }
+
+});
+
+/* ---------- Focus ---------- */
+
+window.addEventListener("focus",()=>{
+
+  if(running){
+
+    diagnostics();
+
+  }
+
+});
+ /* =========================================================
+   PART 6/8
+   PAPER TRADING ENGINE
+   Retest Entry • MFE • MAE • R-Multiple • BreakEven
+   ========================================================= */
+
+const paper={
+
+  open:new Map(),
+
+  closed:[],
+
+  wins:0,
+  losses:0,
+
+  totalR:0,
+
+  maxHistory:500
+
+};
+
+/* ---------- Open ---------- */
+
+function paperOpen(signal){
+
+  if(paper.open.has(signal.symbol))return;
+
+  if(!signal.retest)return;
+
+  const entry=getCurrentPrice(signal.symbol);
+
+  if(!entry)return;
+
+  paper.open.set(signal.symbol,{
+
+    symbol:signal.symbol,
+
+    direction:signal.direction,
+
+    entry,
+
+    stop:signal.stop,
+
+    target:signal.tp,
+
+    openedAt:now(),
+
+    risk:Math.abs(entry-signal.stop),
+
+    mfe:0,
+    mae:0,
+
+    movedBE:false,
+
+    state:"OPEN"
+
+  });
+
+  signal.status="PAPER";
+
+}
+
+/* ---------- Manage ---------- */
+
+function paperManage(){
+
+  for(const[positionKey,pos]of paper.open){
+
+    const price=getCurrentPrice(pos.symbol);
+
+    if(!price)continue;
+
+    const r=pos.direction==="LONG"
+
+      ?(price-pos.entry)/pos.risk
+
+      :(pos.entry-price)/pos.risk;
+
+    pos.mfe=Math.max(pos.mfe,r);
+
+    pos.mae=Math.min(pos.mae,r);
+
+    /* ---------- BreakEven ---------- */
+
+    if(
+
+      !pos.movedBE &&
+
+      r>=1
+
+    ){
+
+      pos.stop=pos.entry;
+
+      pos.movedBE=true;
+
+    }
+
+    let closed=false;
+
+    let resultR=0;
+
+    if(pos.direction==="LONG"){
+
+      if(price>=pos.target){
+
+        closed=true;
+
+        resultR=Math.abs(pos.target-pos.entry)/pos.risk;
+
+      }else if(price<=pos.stop){
+
+        closed=true;
+
+        resultR=pos.stop===pos.entry?0:-1;
+
+      }
+
+    }else{
+
+      if(price<=pos.target){
+
+        closed=true;
+
+        resultR=Math.abs(pos.entry-pos.target)/pos.risk;
+
+      }else if(price>=pos.stop){
+
+        closed=true;
+
+        resultR=pos.stop===pos.entry?0:-1;
+
+      }
+
+    }
+
+    if(!closed)continue;
+
+    pos.state="CLOSED";
+
+    pos.closedAt=now();
+
+    pos.exit=price;
+
+    pos.resultR=resultR;
+
+    paper.closed.push(pos);
+
+    paper.open.delete(positionKey);
+
+    paper.totalR+=resultR;
+
+    if(resultR>0)paper.wins++;
+    else if(resultR<0)paper.losses++;
+
+    while(paper.closed.length>paper.maxHistory){
+
+      paper.closed.shift();
+
+    }
+
+  }
+
+}
+
+/* ---------- Stats ---------- */
+
+function paperStats(){
+
+  const trades=paper.wins+paper.losses;
+
+  const wr=trades
+
+    ?paper.wins/trades*100
+
+    :0;
+
+  return{
+
+    open:paper.open.size,
+
+    closed:paper.closed.length,
+
+    wins:paper.wins,
+
+    losses:paper.losses,
+
+    winRate:wr,
+
+    totalR:paper.totalR,
+
+    avgR:paper.closed.length
+
+      ?paper.totalR/paper.closed.length
+
+      :0
+
+  };
+
+}
+
+/* ---------- Attach to manager ---------- */
+
+const _oldManageSignals=manageSignals;
+
+manageSignals=function(){
+
+  _oldManageSignals();
+
+  for(const signal of signals.values()){
+
+    paperOpen(signal);
+
+  }
+
+  paperManage();
+
+};
+
+/* =========================================================
+   SIGNAL CONFIDENCE
+   ========================================================= */
+
+function confidenceLabel(score){
+
+  if(score>=90)return"INSTITUTIONAL";
+
+  if(score>=82)return"A+";
+
+  if(score>=76)return"A";
+
+  if(score>=72)return"B";
+
+  return"C";
+
+}
+
+function confidenceColor(score){
+
+  if(score>=90)return"good";
+
+  if(score>=82)return"good";
+
+  if(score>=76)return"warn";
+
+  return"muted";
+
+}
+
+/* =========================================================
+   EXECUTION FILTER
+   ========================================================= */
+
+function executionScore(symbol){
+
+  const book=books.get(symbol);
+
+  if(!book)return 0;
+
+  let score=40;
+
+  if(book.spreadPct<=0.03)score+=25;
+  else if(book.spreadPct<=0.06)score+=15;
+  else if(book.spreadPct<=0.10)score+=8;
+
+  const lag=now()-book.lastRx;
+
+  if(lag<400)score+=20;
+  else if(lag<800)score+=12;
+  else if(lag<1500)score+=5;
+
+  if(isTradeFresh(symbol))score+=15;
+
+  return clamp(score,0,100);
+
+}
+
+/* =========================================================
+   QUALITY PATCH
+   ========================================================= */
+
+const _oldBuildSetup=buildSetup;
+
+buildSetup=function(symbol,direction){
+
+  const setup=_oldBuildSetup(symbol,direction);
+
+  if(!setup)return null;
+
+  const exec=executionScore(symbol);
+
+  setup.execution=exec;
+
+  if(exec<65)return null;
+
+  return setup;
+
+};
+
+/* =========================================================
+   UI PATCH
+   ========================================================= */
+
+const _oldSignalCard=signalCard;
+
+signalCard=function(signal){
+
+  let html=_oldSignalCard(signal);
+
+  const label=confidenceLabel(signal.score);
+
+  const stats=paperStats();
+
+  html=html.replace(
+
+    '</div>\n\n</div>',
+
+`
+<div style="margin-top:8px" class="small">
+
+<div>Confidence:
+<b class="${confidenceColor(signal.score)}">${label}</b></div>
+
+<div>Execution:
+<b>${Math.round(signal.execution||0)}</b></div>
+
+<div>Paper WinRate:
+<b>${stats.winRate.toFixed(1)}%</b></div>
+
+</div>
+
+</div>
+`
+  );
+
+  return html;
+
+};
+
+/* =========================================================
+   PAPER RESET
+   ========================================================= */
+
+function resetPaper(){
+
+  paper.open.clear();
+
+  paper.closed.length=0;
+
+  paper.wins=0;
+  paper.losses=0;
+
+  paper.totalR=0;
+
+}
+
+const _oldClearSignals=clearSignals;
+
+clearSignals=function(){
+
+  resetPaper();
+
+  _oldClearSignals();
+
+};
+
+/* =========================================================
+   EXPORT
+   ========================================================= */
+
+window.paperStats=paperStats;
+window.paper=paper;
+ /* =========================================================
+   PART 7/8
+   STABILITY / PERFORMANCE / WALL LIFECYCLE PATCH
+   ========================================================= */
+
+/*
+  ВАЖНО:
+  Эта часть заменяет некоторые слишком агрессивные
+  поведения предыдущих блоков через обёртки.
+*/
+
+/* =========================================================
+   STABLE WALL INTERACTION
+   ========================================================= */
+
+const wallTouchState=new Map();
+
+function wallInteraction(symbol,wall){
+
+  if(!wall)return null;
+
+  const price=getCurrentPrice(symbol);
+
+  if(!price)return null;
+
+  const distance=pricePct(price,wall.price);
+
+  const key=wall.key;
+
+  let state=wallTouchState.get(key);
+
+  if(!state){
+
+    state={
+      key,
+      active:false,
+      lastEnter:0,
+      lastExit:0,
+      touches:0,
+      lastPrice:price
+    };
+
+    wallTouchState.set(key,state);
+
+  }
+
+  const inside=distance<=0.18;
+
+  /*
+    Считаем новый тест только при входе
+    в область стены.
+
+    Поэтому 100 циклов сканирования возле
+    одной стены = ОДИН тест, а не 100.
+  */
+
+  if(inside&&!state.active){
+
+    state.active=true;
+    state.lastEnter=now();
+    state.touches++;
+
+  }
+
+  if(!inside&&state.active){
+
+    state.active=false;
+    state.lastExit=now();
+
+  }
+
+  state.lastPrice=price;
+
+  return{
+    distance,
+    inside,
+    touches:state.touches,
+    active:state.active,
+    lastEnter:state.lastEnter,
+    lastExit:state.lastExit
+  };
+
+}
+
+/* =========================================================
+   WALL KEY STABILIZATION
+   ========================================================= */
+
+function canonicalWallPrice(symbol,side,price){
+
+  const instrument=instruments.get(symbol);
+
+  const tick=num(instrument?.tickSize);
+
+  const p=num(price);
+
+  if(!p)return 0;
+
+  /*
+    Более крупный bucket позволяет одной стене
+    сохранять идентичность при небольших изменениях
+    средней цены кластера.
+  */
+
+  const bucket=Math.max(
+    tick*20,
+    p*0.00030
+  );
+
+  return Math.round(p/bucket)*bucket;
+
+}
+
+/*
+  Не используем текущую цену как часть идентичности стены.
+  Цена рынка может двигаться, сама стена при этом остаётся
+  тем же структурным уровнем.
+*/
+
+function stableWallKey(symbol,side,price){
+
+  const cp=canonicalWallPrice(
+    symbol,
+    side,
+    price
+  );
+
+  return symbol+":"+side+":"+Math.round(cp*100000000);
+
+}
+
+/* =========================================================
+   STABLE WALL OBJECT
+   ========================================================= */
+
+function getStableWall(symbol,cluster){
+
+  const key=stableWallKey(
+    symbol,
+    cluster.side,
+    cluster.center
+  );
+
+  let state=walls.get(key);
+
+  if(!state){
+
+    state={
+      key,
+      symbol,
+      side:cluster.side,
+
+      price:cluster.center,
+
+      firstSeen:now(),
+      lastSeen:now(),
+
+      peakUsd:cluster.maxUsd,
+      currentUsd:cluster.maxUsd,
+
+      previousUsd:cluster.maxUsd,
+
+      addedUsd:0,
+      removedUsd:0,
+
+      executedUsd:0,
+      cancelledUsd:0,
+
+      replenishments:0,
+
+      tests:0,
+      testActive:false,
+
+      absorption:0,
+      spoof:0,
+
+      state:"NEW",
+
+      lastAttackUsd:0,
+      lastInteraction:0,
+
+      lastMarketPrice:getCurrentPrice(symbol),
+
+      lastCycle:scanCycle
+
+    };
+
+    walls.set(key,state);
+
+  }
+
+  return state;
+
+}
+
+/* =========================================================
+   WALL LIFECYCLE REWRITE
+   ========================================================= */
+
+function updateStableWall(symbol,cluster){
+
+  const wall=getStableWall(symbol,cluster);
+
+  const previous=wall.currentUsd;
+
+  wall.previousUsd=previous;
+
+  wall.currentUsd=cluster.maxUsd;
+
+  wall.peakUsd=Math.max(
+    wall.peakUsd,
+    cluster.maxUsd
+  );
+
+  wall.price=cluster.center;
+  wall.lastSeen=now();
+  wall.lastCycle=scanCycle;
+
+  const delta=cluster.maxUsd-previous;
+
+  if(delta>0){
+
+    wall.addedUsd+=delta;
+
+  }else if(delta<0){
+
+    wall.removedUsd+=Math.abs(delta);
+
+  }
+
+  const flow=aggressiveFlow(symbol);
+
+  /*
+    BID:
+      SELL market orders are attacking the bid wall.
+
+    ASK:
+      BUY market orders are attacking the ask wall.
+  */
+
+  const attack=wall.side==="BID"
+    ?flow.sell
+    :flow.buy;
+
+  wall.lastAttackUsd=attack;
+
+  const reduction=Math.max(
+    previous-cluster.maxUsd,
+    0
+  );
+
+  /*
+    This is an ESTIMATE.
+    A displayed reduction cannot prove execution.
+  */
+
+  const estimatedExecuted=Math.min(
+    reduction,
+    attack
+  );
+
+  const estimatedCancelled=Math.max(
+    reduction-estimatedExecuted,
+    0
+  );
+
+  wall.executedUsd=estimatedExecuted;
+  wall.cancelledUsd=estimatedCancelled;
+
+  wall.absorption=wall.peakUsd
+    ?estimatedExecuted/wall.peakUsd
+    :0;
+
+  /*
+    Spoof is calculated from the current episode,
+    not from the whole lifetime of the wall.
+  */
+
+  wall.spoof=reduction>0
+    ?estimatedCancelled/reduction
+    :0;
+
+  const interaction=wallInteraction(
+    symbol,
+    wall
+  );
+
+  if(interaction){
+
+    wall.testActive=interaction.active;
+
+    /*
+      Only increment when entering the test zone.
+    */
+
+    if(
+      interaction.active &&
+      interaction.touches>wall.tests
+    ){
+
+      wall.tests=interaction.touches;
+      wall.lastInteraction=now();
+
+    }
+
+  }
+
+  /*
+    Replenishment:
+    the wall gets attacked/reduced, then displayed
+    liquidity returns to a substantial percentage
+    of its previous peak.
+  */
+
+  if(
+    reduction>0 &&
+    cluster.maxUsd>=wall.peakUsd*0.70 &&
+    wall.addedUsd>=reduction*0.40 &&
+    attack>=Math.max(
+      CONFIG.MIN_FLOW_USD,
+      wall.peakUsd*0.05
+    )
+  ){
+
+    const sinceLast=now()-wall.lastInteraction;
+
+    if(sinceLast>1200){
+
+      wall.replenishments++;
+      wall.lastInteraction=now();
+
+    }
+
+  }
+
+  const age=now()-wall.firstSeen;
+
+  /*
+    State priority:
+      SPOOF
+      ICEBERG
+      TESTED
+      STABLE
+      NEW
+  */
+
+  if(
+    wall.spoof>=0.90 &&
+    wall.tests===0 &&
+    age<12000 &&
+    wall.currentUsd<wall.peakUsd*0.30
+  ){
+
+    wall.state="SPOOF";
+
+  }else if(
+    wall.replenishments>=2 &&
+    wall.tests>=1
+  ){
+
+    wall.state="ICEBERG";
+
+  }else if(
+    wall.tests>=1 &&
+    age>=CONFIG.WALL_MIN_AGE_MS
+  ){
+
+    wall.state="TESTED";
+
+  }else if(
+    age>=CONFIG.WALL_STABLE_MS
+  ){
+
+    wall.state="STABLE";
+
+  }else{
+
+    wall.state="NEW";
+
+  }
+
+  return wall;
+
+}
+
+/* =========================================================
+   REBUILD WALL SCAN
+   ========================================================= */
+
+function scanWallsStable(symbol){
+
+  const bids=clusterWalls(symbol,"BID");
+  const asks=clusterWalls(symbol,"ASK");
+
+  const seen=new Set();
+
+  for(const cluster of [...bids,...asks]){
+
+    const wall=updateStableWall(
+      symbol,
+      cluster
+    );
+
+    seen.add(wall.key);
+
+  }
+
+  /*
+    IMPORTANT:
+    A wall is NOT deleted immediately just because
+    one orderbook update no longer contains it.
+
+    It receives a grace period.
+  */
+
+  for(const [key,wall] of walls){
+
+    if(wall.symbol!==symbol)continue;
+
+    if(seen.has(key))continue;
+
+    if(
+      now()-wall.lastSeen>
+      CONFIG.WALL_TTL_MS
+    ){
+
+      walls.delete(key);
+      wallTouchState.delete(key);
+
+    }
+
+  }
+
+}
+
+/* =========================================================
+   USE STABLE WALL ENGINE
+   ========================================================= */
+
+const _legacyScanWalls=scanWalls;
+
+scanWalls=function(symbol){
+
+  scanWallsStable(symbol);
+
+};
+
+/* =========================================================
+   ACTIONABLE WALL
+   ========================================================= */
+
+function actionableWall(symbol,direction){
+
+  const side=direction==="LONG"
+    ?"BID"
+    :"ASK";
+
+  const price=getCurrentPrice(symbol);
+
+  const candidates=[...walls.values()]
+    .filter(w=>
+      w.symbol===symbol &&
+      w.side===side &&
+      w.state!=="SPOOF" &&
+      w.state!=="REMOVED" &&
+      now()-w.lastSeen<CONFIG.WALL_TTL_MS
+    );
+
+  if(!candidates.length)return null;
+
+  candidates.sort((a,b)=>{
+
+    const da=pricePct(price,a.price);
+    const db=pricePct(price,b.price);
+
+    /*
+      Prefer tested / iceberg walls,
+      then distance.
+    */
+
+    const qa=
+      (a.state==="ICEBERG"?35:0)+
+      (a.state==="TESTED"?20:0)+
+      Math.min(a.replenishments*5,15)+
+      Math.min(a.tests*3,10);
+
+    const qb=
+      (b.state==="ICEBERG"?35:0)+
+      (b.state==="TESTED"?20:0)+
+      Math.min(b.replenishments*5,15)+
+      Math.min(b.tests*3,10);
+
+    return(
+      (db*100- qb)-
+      (da*100- qa)
+    );
+
+  });
+
+  return candidates[0];
+
+}
+
+/* =========================================================
+   DIRECTIONAL ABSORPTION
+   ========================================================= */
+
+function directionalAbsorption(symbol,direction){
+
+  const wall=actionableWall(
+    symbol,
+    direction
+  );
+
+  if(!wall)return null;
+
+  const flow=aggressiveFlow(symbol);
+
+  /*
+    LONG:
+      sellers hit BID wall.
+      Wall survives/replenishes.
+      This is the useful absorption pattern.
+
+    SHORT:
+      buyers hit ASK wall.
+      Wall survives/replenishes.
+  */
+
+  const attack=direction==="LONG"
+    ?flow.sell
+    :flow.buy;
+
+  const directionalOpposite=direction==="LONG"
+    ?flow.buy
+    :flow.sell;
+
+  const attackRatio=
+    attack/
+    Math.max(
+      attack+directionalOpposite,
+      1
+    );
+
+  let score=0;
+
+  score+=Math.min(
+    attackRatio*35,
+    35
+  );
+
+  score+=Math.min(
+    wall.absorption*35,
+    35
+  );
+
+  score+=Math.min(
+    wall.replenishments*10,
+    20
+  );
+
+  if(wall.state==="ICEBERG")score+=10;
+  if(wall.state==="TESTED")score+=8;
+
+  return{
+    wall,
+    attack,
+    attackRatio,
+    score:clamp(score,0,100)
+  };
+
+}
+
+/* =========================================================
+   PRICE RESPONSE AFTER WALL ATTACK
+   ========================================================= */
+
+function wallResponse(symbol,wall){
+
+  if(!wall)return null;
+
+  const arr=recentTrades(
+    symbol,
+    8000
+  );
+
+  if(arr.length<5)return null;
+
+  const price=getCurrentPrice(symbol);
+
+  const start=arr[0].price;
+
+  const move=(price-start)/start*100;
+
+  let score=0;
+
+  if(wall.side==="BID"){
+
+    if(move>0){
+      score+=Math.min(move*120,30);
+    }
+
+  }else{
+
+    if(move<0){
+      score+=Math.min(Math.abs(move)*120,30);
+    }
+
+  }
+
+  if(
+    wall.state==="TESTED"||
+    wall.state==="ICEBERG"
+  ){
+
+    score+=20;
+
+  }
+
+  return{
+    move,
+    score:clamp(score,0,50)
+  };
+
+}
+
+/* =========================================================
+   SIGNAL DEDUPLICATION
+   ========================================================= */
+
+const recentSetups=new Map();
+
+function setupFingerprint(symbol,direction,wall){
+
+  if(!wall)return "";
+
+  const priceBucket=
+    Math.round(
+      wall.price/
+      Math.max(
+        wall.price*0.0005,
+        num(instruments.get(symbol)?.tickSize)||0.0001
+      )
+    );
+
+  return[
+    symbol,
+    direction,
+    wall.side,
+    priceBucket
+  ].join(":");
+
+}
+
+function setupRecentlyUsed(fp){
+
+  const t=num(recentSetups.get(fp));
+
+  return t>now();
+
+}
+
+function rememberSetup(fp){
+
+  recentSetups.set(
+    fp,
+    now()+CONFIG.SETUP_COOLDOWN_MS
+  );
+
+}
+
+/* =========================================================
+   CLEANUP
+   ========================================================= */
+
+function cleanupRuntime(){
+
+  const t=now();
+
+  for(const [key,until] of cooldowns){
+
+    if(num(until)<t){
+
+      cooldowns.delete(key);
+
+    }
+
+  }
+
+  for(const [key,until] of setupCooldowns){
+
+    if(num(until)<t){
+
+      setupCooldowns.delete(key);
+
+    }
+
+  }
+
+  for(const [key,until] of recentSetups){
+
+    if(num(until)<t){
+
+      recentSetups.delete(key);
+
+    }
+
+  }
+
+  for(const [key,wall] of walls){
+
+    if(
+      t-wall.lastSeen>
+      CONFIG.WALL_TTL_MS*2
+    ){
+
+      walls.delete(key);
+      wallTouchState.delete(key);
+
+    }
+
+  }
+
+  /*
+    Keep trade buffers bounded.
+  */
+
+  const cutoff=t-CONFIG.FLOW_BASELINE_MS;
+
+  for(const [symbol,arr] of trades){
+
+    while(
+      arr.length &&
+      arr[0].receivedTime<cutoff
+    ){
+
+      arr.shift();
+
+    }
+
+    if(arr.length>CONFIG.MAX_TRADES){
+
+      arr.splice(
+        0,
+        arr.length-CONFIG.MAX_TRADES
+      );
+
+    }
+
+  }
+
+}
+
+/* =========================================================
+   PERIODIC MAINTENANCE
+   ========================================================= */
+
+let maintenanceTimer=null;
+
+function startMaintenance(){
+
+  if(maintenanceTimer)return;
+
+  maintenanceTimer=setInterval(()=>{
+
+    if(!running)return;
+
+    cleanupRuntime();
+    watchdog();
+
+  },2000);
+
+}
+
+function stopMaintenance(){
+
+  if(maintenanceTimer){
+
+    clearInterval(maintenanceTimer);
+    maintenanceTimer=null;
+
+  }
+
+}
+
+/* =========================================================
+   PATCH START / STOP
+   ========================================================= */
+
+const _oldStart=start;
+
+start=async function(){
+
+  if(running)return;
+
+  await _oldStart();
+
+  if(running){
+
+    startMaintenance();
+
+  }
+
+};
+
+const _oldStop=stop;
+
+stop=function(){
+
+  stopMaintenance();
+
+  _oldStop();
+
+};
+
+/* =========================================================
+   PATCH SIGNAL CREATION
+   ========================================================= */
+
+const _oldCreateSignal=createSignal;
+
+createSignal=function(symbol,direction){
+
+  if(signals.has(symbol))return;
+
+  const wall=actionableWall(
+    symbol,
+    direction
+  );
+
+  if(!wall)return;
+
+  const fp=setupFingerprint(
+    symbol,
+    direction,
+    wall
+  );
+
+  if(!fp)return;
+
+  if(setupRecentlyUsed(fp))return;
+
+  /*
+    Require actual directional wall interaction
+    before allowing a signal.
+  */
+
+  const absorption=
+    directionalAbsorption(
+      symbol,
+      direction
+    );
+
+  if(!absorption)return;
+
+  /*
+    Do not require maximum absorption.
+    We only reject clearly weak interaction.
+  */
+
+  if(absorption.score<35)return;
+
+  _oldCreateSignal(
+    symbol,
+    direction
+  );
+
+  if(signals.has(symbol)){
+
+    signals.get(symbol).absorptionScore=
+      absorption.score;
+
+    signals.get(symbol).wallTests=
+      wall.tests;
+
+    signals.get(symbol).replenishments=
+      wall.replenishments;
+
+    rememberSetup(fp);
+
+  }
+
+};
+
+/* =========================================================
+   PATCH SCAN
+   ========================================================= */
+
+const _oldScanSymbol=scanSymbol;
+
+scanSymbol=function(symbol){
+
+  if(!isBookFresh(symbol))return;
+
+  scanWallsStable(symbol);
+
+  _oldScanSymbol(symbol);
+
+};
+
+/* =========================================================
+   EXTRA HEALTH CHECK
+   ========================================================= */
+
+function systemHealthy(){
+
+  const syms=currentUniverse();
+
+  if(!syms.length)return false;
+
+  let booksOk=0;
+
+  for(const s of syms){
+
+    if(isBookFresh(s))booksOk++;
+
+  }
+
+  return booksOk>=Math.max(
+    3,
+    Math.floor(syms.length*0.30)
+  );
+
+}
+
+/* =========================================================
+   DEBUG API EXTENSION
+   ========================================================= */
+
+window.getScannerHealth=function(){
+
+  return{
+
+    running,
+
+    symbols:currentUniverse().length,
+
+    booksFresh:currentUniverse()
+      .filter(isBookFresh)
+      .length,
+
+    tradesFresh:currentUniverse()
+      .filter(isTradeFresh)
+      .length,
+
+    walls:walls.size,
+
+    signals:signals.size,
+
+    sockets:sockets.length,
+
+    errors:globalErrors,
+
+    healthy:systemHealthy()
+
+  };
+
+};
+ <!-- ========================================================
+     PART 8/8
+     FINAL ENGINE / RECOVERY / API / CLOSE
+     ======================================================== -->
+
+<script>
+/*
+  PART 8 выполняется в том же документе.
+
+  Если этот фрагмент вставляется строго после PART 7,
+  НИЧЕГО дополнительного менять не нужно.
+*/
+
+/* =========================================================
+   FINAL SIGNAL VALIDATION
+   ========================================================= */
+
+function finalSignalCheck(signal){
+
+  if(!signal)return false;
+
+  const price=getCurrentPrice(signal.symbol);
+
+  if(!price)return false;
+
+  const book=books.get(signal.symbol);
+
+  if(!book||!book.valid)return false;
+
+  if(book.spreadPct>CONFIG.MAX_SPREAD_PCT)return false;
+
+  /*
+    Жёсткая инвалидизация.
+    Небольшое ухудшение качества НЕ удаляет сигнал.
+  */
+
+  if(signal.direction==="LONG"){
+
+    if(price<=signal.stop)return false;
+
+  }else{
+
+    if(price>=signal.stop)return false;
+
+  }
+
+  const wall=walls.get(signal.wallKey);
+
+  /*
+    Стена может немного измениться.
+    Не удаляем сигнал из-за небольшого изменения размера.
+  */
+
+  if(!wall)return false;
+
+  if(wall.state==="SPOOF"){
+
+    /*
+      Если стена исчезла как spoof до подтверждения —
+      сигнал недействителен.
+    */
+
+    if(!signal.retest)return false;
+
+  }
+
+  return true;
+
+}
+
+/* =========================================================
+   PATCH SIGNAL MANAGER
+   ========================================================= */
+
+const _previousManageSignals=manageSignals;
+
+manageSignals=function(){
+
+  _previousManageSignals();
+
+  for(const [symbol,signal] of signals){
+
+    /*
+      TARGET сохраняем на экране некоторое время,
+      чтобы пользователь видел результат.
+    */
+
+    if(signal.status==="TARGET"){
+
+      if(!signal.targetReachedAt){
+
+        signal.targetReachedAt=now();
+
+      }
+
+      if(now()-signal.targetReachedAt>60000){
+
+        signals.delete(symbol);
+
+      }
+
+      continue;
+
+    }
+
+    if(!finalSignalCheck(signal)){
+
+      /*
+        Если причина — временная потеря данных,
+        сигнал не удаляем сразу.
+
+        Удаляем только при жёстком нарушении
+        структуры / SL / полной потере стены.
+      */
+
+      const book=books.get(symbol);
+
+      const wall=walls.get(signal.wallKey);
+
+      const price=getCurrentPrice(symbol);
+
+      const hardStop=
+        !book ||
+        !book.valid ||
+        !wall ||
+        (
+          signal.direction==="LONG" &&
+          price<=signal.stop
+        ) ||
+        (
+          signal.direction==="SHORT" &&
+          price>=signal.stop
+        );
+
+      if(hardStop){
+
+        signal.status="INVALIDATED";
+
+        signal.invalidatedAt=now();
+
+        signals.delete(symbol);
+
+      }
+
+      continue;
+
+    }
+
+    updateRetest(signal);
+
+  }
+
+};
+
+/* =========================================================
+   FINAL PAPER PATCH
+   ========================================================= */
+
+const _previousPaperManage=paperManage;
+
+paperManage=function(){
+
+  _previousPaperManage();
+
+  /*
+    После закрытия Paper-позиции соответствующий
+    сигнал остаётся в UI ещё немного.
+  */
+
+};
+
+/* =========================================================
+   PERIODIC UI
+   ========================================================= */
+
+function finalRender(){
+
+  try{
+
+    render();
+
+    const p=paperStats();
+
+    const d=$("diagnostics");
+
+    if(d){
+
+      d.textContent+=
+        "\n\nPAPER: "+
+        "open="+p.open+
+        " closed="+p.closed+
+        " WR="+p.winRate.toFixed(1)+"%"+
+        " totalR="+p.totalR.toFixed(2);
+
+    }
+
+  }catch(e){
+
+    globalErrors++;
+
+    console.error("UI:",e);
+
+  }
+
+}
+
+/* =========================================================
+   ERROR RECOVERY
+   ========================================================= */
+
+let recoveryLock=false;
+
+async function recoverSystem(){
+
+  if(!running)return;
+
+  if(recoveryLock)return;
+
+  recoveryLock=true;
+
+  try{
+
+    setStatus(
+      "Восстановление соединений...",
+      "warn"
+    );
+
+    watchdog();
+
+    const healthy=systemHealthy();
+
+    if(!healthy){
+
+      /*
+        Полностью пересоздаём WS,
+        но НЕ очищаем сигналы.
+      */
+
+      openSockets();
+
+    }
+
+    await sleep(1200);
+
+    if(systemHealthy()){
+
+      setStatus(
+        "Мониторинг запущен",
+        "ok"
+      );
+
+    }else{
+
+      setStatus(
+        "Ожидание данных",
+        "warn"
+      );
+
+    }
+
+  }catch(e){
+
+    globalErrors++;
+
+    console.error("Recovery:",e);
+
+  }finally{
+
+    recoveryLock=false;
+
+  }
+
+}
+
+/* =========================================================
+   RECOVERY TIMER
+   ========================================================= */
+
+let recoveryTimer=null;
+
+function startRecovery(){
+
+  if(recoveryTimer)return;
+
+  recoveryTimer=setInterval(()=>{
+
+    if(!running)return;
+
+    recoverSystem();
+
+  },5000);
+
+}
+
+function stopRecovery(){
+
+  if(recoveryTimer){
+
+    clearInterval(recoveryTimer);
+
+    recoveryTimer=null;
+
+  }
+
+}
+
+/* =========================================================
+   PATCH START / STOP AGAIN
+   ========================================================= */
+
+const _startWithMaintenance=start;
+
+start=async function(){
+
+  await _startWithMaintenance();
+
+  if(running){
+
+    startRecovery();
+
+  }
+
+};
+
+const _stopWithRecovery=stop;
+
+stop=function(){
+
+  stopRecovery();
+
+  _stopWithRecovery();
+
+};
+
+/* =========================================================
+   UNIVERSE REFRESH PROTECTION
+   ========================================================= */
+
+let universeRefreshLock=false;
+
+const _refreshUniverseOriginal=refreshUniverse;
+
+refreshUniverse=async function(){
+
+  if(!running)return;
+
+  if(universeRefreshLock)return;
+
+  universeRefreshLock=true;
+
+  try{
+
+    const before=
+      currentUniverse().join(",");
+
+    await _refreshUniverseOriginal();
+
+    const after=
+      currentUniverse().join(",");
+
+    if(before!==after){
+
+      /*
+        Сигналы существующих монет не удаляем.
+        Новые символы получают чистый state.
+      */
+
+      for(const symbol of currentUniverse()){
+
+        ensureBook(symbol);
+        ensureTrades(symbol);
+        ensureHealth(symbol);
+
+      }
+
+    }
+
+  }catch(e){
+
+    globalErrors++;
+
+    log(
+      "Universe refresh: "+
+      e.message
+    );
+
+  }finally{
+
+    universeRefreshLock=false;
+
+  }
+
+};
+
+/* =========================================================
+   HTF REFRESH PROTECTION
+   ========================================================= */
+
+let htfRefreshLock=false;
+
+const _refreshHTFOriginal=refreshHTF;
+
+refreshHTF=async function(){
+
+  if(htfRefreshLock)return;
+
+  htfRefreshLock=true;
+
+  try{
+
+    await _refreshHTFOriginal();
+
+  }catch(e){
+
+    globalErrors++;
+
+    log(
+      "HTF refresh: "+
+      e.message
+    );
+
+  }finally{
+
+    htfRefreshLock=false;
+
+  }
+
+};
+
+/* =========================================================
+   PAGE VISIBILITY
+   ========================================================= */
+
+document.addEventListener(
+  "visibilitychange",
+  ()=>{
+
+    if(!running)return;
+
+    if(
+      document.visibilityState==="visible"
+    ){
+
+      setTimeout(()=>{
+
+        if(running){
+
+          openSockets();
+
+          recoverSystem();
+
+        }
+
+      },500);
+
+    }
+
+  }
+);
+
+/* =========================================================
+   NETWORK STATUS
+   ========================================================= */
+
+window.addEventListener(
+  "online",
+  ()=>{
+
+    if(running){
+
+      setStatus(
+        "Сеть восстановлена",
+        "warn"
+      );
+
+      setTimeout(
+        recoverSystem,
+        500
+      );
+
+    }
+
+  }
+);
+
+window.addEventListener(
+  "offline",
+  ()=>{
+
+    if(running){
+
+      setStatus(
+        "Нет интернет-соединения",
+        "err"
+      );
+
+    }
+
+  }
+);
+
+/* =========================================================
+   GLOBAL ERROR HANDLING
+   ========================================================= */
+
+window.addEventListener(
+  "error",
+  e=>{
+
+    globalErrors++;
+
+    console.error(
+      "Global:",
+      e.error||e.message
+    );
+
+  }
+);
+
+window.addEventListener(
+  "unhandledrejection",
+  e=>{
+
+    globalErrors++;
+
+    console.error(
+      "Promise:",
+      e.reason
+    );
+
+  }
+);
+
+/* =========================================================
+   BEFORE UNLOAD
+   ========================================================= */
+
+window.addEventListener(
+  "beforeunload",
+  ()=>{
+
+    try{
+
+      running=false;
+
+      stopRecovery();
+      stopMaintenance();
+
+      closeSockets();
+
+    }catch(e){}
+
+  }
+);
+
+/* =========================================================
+   FINAL DIAGNOSTICS
+   ========================================================= */
+
+function fullDiagnostics(){
+
+  const health=getScannerHealth();
+
+  const paperResult=paperStats();
+
+  return{
+
+    engine:{
+      running,
+      scanCycle,
+      errors:globalErrors
+    },
+
+    market:{
+      symbols:currentUniverse().length,
+      booksFresh:health.booksFresh,
+      tradesFresh:health.tradesFresh
+    },
+
+    websocket:{
+      sockets:sockets.length,
+      states:sockets.map(s=>({
+        id:s.id,
+        symbols:s.symbols.length,
+        state:s.ws?.readyState===1
+          ?"OPEN"
+          :"CLOSED",
+        lastRx:
+          s.lastRx
+            ?now()-s.lastRx
+            :null
+      }))
+    },
+
+    orderflow:{
+      walls:walls.size,
+      signals:signals.size
+    },
+
+    paper:paperResult
+
+  };
+
+}
+
+/* =========================================================
+   PUBLIC API
+   ========================================================= */
+
+window.BybitInstitutionalOF={
+
+  config:CONFIG,
+
+  start,
+  stop,
+
+  clear:clearSignals,
+
+  diagnostics:fullDiagnostics,
+
+  health:getScannerHealth,
+
+  paperStats,
+
+  market:()=>[...market.values()],
+
+  orderbook:symbol=>{
+
+    const b=books.get(symbol);
+
+    if(!b)return null;
+
+    return{
+
+      symbol,
+
+      valid:b.valid,
+
+      bestBid:b.bestBid,
+
+      bestAsk:b.bestAsk,
+
+      spreadPct:b.spreadPct,
+
+      lastPrice:getCurrentPrice(symbol),
+
+      updateId:b.updateId,
+
+      lastRx:b.lastRx
+
+    };
+
+  },
+
+  flow:symbol=>{
+
+    return{
+
+      flow:aggressiveFlow(symbol),
+
+      baseline:baselineFlow(symbol),
+
+      recent:recentTrades(
+        symbol,
+        CONFIG.FLOW_WINDOW_MS
+      )
+
+    };
+
+  },
+
+  walls:symbol=>{
+
+    return[...walls.values()]
+      .filter(x=>
+        !symbol ||
+        x.symbol===symbol
+      )
+      .map(x=>({...x}));
+
+  },
+
+  signals:()=>{
+
+    return[...signals.values()]
+      .map(x=>({...x}));
+
+  }
+
+};
+
+/* =========================================================
+   FINAL INITIALIZATION
+   ========================================================= */
+
+$("diagnostics").textContent=
+  "Готово.\n"+
+  "Нажми START для запуска сканера.\n\n"+
+  "Архитектура:\n"+
+  "Market → OrderBook → Trades → Walls → HTF → Signal → Paper";
+
+setStatus(
+  "Готов к запуску",
+  ""
+);
+
+render();
+
+/* =========================================================
+   FINAL SELF-CHECK
+   ========================================================= */
+
+(function selfCheck(){
+
+  const required=[
+    "start",
+    "stop",
+    "clear",
+    "diagnostics",
+    "health",
+    "paperStats"
+  ];
+
+  const missing=required.filter(
+    x=>typeof window.BybitInstitutionalOF[x]!=="function"
+  );
+
+  if(missing.length){
+
+    globalErrors++;
+
+    console.error(
+      "SELF CHECK FAILED:",
+      missing
+    );
+
+  }else{
+
+    console.log(
+      "Bybit Institutional OrderFlow v13 PRO ready"
+    );
+
+  }
+
+})();
+
 </script>
-</body></html>
+</body>
+</html>
