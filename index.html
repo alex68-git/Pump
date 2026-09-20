@@ -1,418 +1,138 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bybit Smart Fade Scanner PRO v10 (Fixed)</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Bybit Institutional OrderFlow v13 PRO</title>
 <style>
-:root {
-    --bg: #0b0e11; --card: #161b22; --txt: #eaecef; 
-    --mut: #9ca3af; --g: #00C076; --r: #F6465D; --y: #F0B90B;
-}
-* { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--txt); font: 14px -apple-system, BlinkMacSystemFont, sans-serif; }
-.wrap { max-width: 1100px; margin: auto; padding: 14px; }
-.top { display: flex; justify-content: space-between; align-items: center; }
-.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0; }
-.card { background: var(--card); border-radius: 16px; padding: 12px; }
-.big { font-size: 22px; font-weight: 700; }
-.row { display: flex; gap: 8px; align-items: center; }
-.btn { flex: 1; padding: 12px; border: 0; border-radius: 12px; font-weight: 700; color: #fff; cursor: pointer; transition: 0.2s; }
-.btn:hover { filter: brightness(1.1); }
-.g { background: var(--g); } .r { background: var(--r); } .y { background: var(--y); color: #111; }
-.signal { background: #14181f; border-left: 5px solid var(--r); border-radius: 14px; padding: 12px; margin: 10px 0; animation: fadeIn 0.3s; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-.badge { padding: 4px 8px; border-radius: 999px; background: #222; font-weight: 600; }
-.mut { color: var(--mut); font-size: 12px; }
-.bar { height: 8px; background: #222; border-radius: 999px; overflow: hidden; }
-.fill { height: 100%; background: var(--r); width: 0%; transition: width 0.3s; }
-canvas { width: 100%; height: 140px; background: #0f1419; border-radius: 10px; }
-select { width: 100%; padding: 10px; border-radius: 10px; background: #0f1419; color: #fff; border: 1px solid #2b3139; outline: none; }
+:root{--bg:#06080b;--panel:#0d1117;--panel2:#111720;--line:#202936;--text:#e8edf3;--muted:#8b97a7;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;--blue:#60a5fa;--cyan:#22d3ee}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:10px;padding-bottom:30px}button{border:1px solid var(--line);background:#151b23;color:var(--text);border-radius:10px;padding:10px 13px;font-weight:700}button:active{transform:scale(.98)}.wrap{max-width:900px;margin:auto}.header{padding:10px 2px}.title{font-size:18px;font-weight:800}.sub{color:var(--muted);font-size:11px;margin-top:3px}.bar{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.status{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px;color:var(--muted)}.status b{color:var(--text)}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0}.stat{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:8px}.stat span{display:block;color:var(--muted);font-size:10px}.stat b{font-size:14px}.section{margin-top:10px}.section h3{font-size:12px;color:var(--muted);margin:10px 2px 6px}.cards{display:grid;gap:8px}.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px}.card.long{border-left:3px solid var(--green)}.card.short{border-left:3px solid var(--red)}.card.wait{border-left:3px solid var(--yellow)}.top{display:flex;justify-content:space-between;gap:8px;align-items:center}.sym{font-size:15px;font-weight:800}.dir{font-weight:900}.long .dir{color:var(--green)}.short .dir{color:var(--red)}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}.kv{background:var(--panel2);padding:6px;border-radius:7px}.kv span{display:block;color:var(--muted);font-size:9px}.kv b{font-size:11px}.meter{height:5px;background:#1b222c;border-radius:5px;overflow:hidden;margin-top:7px}.meter i{display:block;height:100%;background:var(--blue)}.reason{color:var(--muted);font-size:10px;line-height:1.35;margin-top:7px}.empty{padding:22px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:10px}.tiny{font-size:9px;color:var(--muted)}@media(max-width:520px){.stats{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
-<body>
-<div class="wrap">
-    <div class="top">
-        <h2>Smart Fade Scanner PRO v10</h2>
-        <div id="status" class="badge">OFFLINE</div>
-    </div>
-
-    <div class="grid">
-        <div class="card"><div id="coins" class="big">0</div><div class="mut">Coins Top</div></div>
-        <div class="card"><div id="ws" class="big">0</div><div class="mut">WS Subscriptions</div></div>
-        <div class="card"><div id="watch" class="big">0</div><div class="mut">In Watch</div></div>
-        <div class="card"><div id="sig" class="big">0</div><div class="mut">Signals</div></div>
-    </div>
-
-    <div class="row">
-        <button id="start" class="btn g">START</button>
-        <button id="stop" class="btn r">STOP</button>
-        <button id="clear" class="btn y">CLEAR</button>
-    </div>
-
-    <div class="card" style="margin-top:12px">
-        <h3>Настройки сканирования</h3>
-        <div class="row">
-            <select id="mode">
-                <option value="70">Aggressive (Score > 70)</option>
-                <option value="78" selected>Balanced (Score > 78)</option>
-                <option value="88">Strict (Score > 88)</option>
-            </select>
-            <select id="watchSec">
-                <option value="60">Окно слежения: 60 сек</option>
-                <option value="120" selected>Окно слежения: 120 сек</option>
-                <option value="180">Окно слежения: 180 сек</option>
-            </select>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="row" style="justify-content:space-between; margin-bottom:8px">
-            <h3 style="margin:0">CVD монеты: <span id="cvdSymbol" style="color:var(--y)">---</span></h3>
-            <select id="cvdSelect" style="width: auto; padding: 4px 8px;"></select>
-        </div>
-        <canvas id="cvd" width="900" height="140"></canvas>
-    </div>
-
-    <div class="card">
-        <h3>Давление продавцов в ленте (Sell Imbalance)</h3>
-        <div class="bar"><div id="trap" class="fill"></div></div>
-    </div>
-
-    <h3>Активные сигналы</h3>
-    <div id="signals"></div>
+<body><div class="wrap">
+<div class="header"><div class="title">Bybit Institutional OrderFlow v13 PRO</div><div class="sub">Orderbook integrity • execution-aware walls • absorption • retest • HTF • paper statistics</div></div>
+<div class="bar"><button id="startBtn">START</button><button id="stopBtn">STOP</button><button id="clearBtn">CLEAR</button><div class="status" id="status">Остановлен</div></div>
+<div class="stats"><div class="stat"><span>Мониторы</span><b id="mMon">0</b></div><div class="stat"><span>Books OK</span><b id="mBooks">0</b></div><div class="stat"><span>Flow OK</span><b id="mFlow">0</b></div><div class="stat"><span>Walls</span><b id="mWalls">0</b></div><div class="stat"><span>Signals</span><b id="mSignals">0</b></div><div class="stat"><span>Lag</span><b id="mLag">—</b></div></div>
+<div class="section"><h3>ACTIVE / WAITING SETUPS</h3><div class="cards" id="signals"><div class="empty">Нажми START. Сканер сначала синхронизирует инструменты, HTF и WebSocket.</div></div></div>
 </div>
-
 <script>
-const CFG = {
-    REST: "https://api.bybit.com/v5/market/tickers?category=linear",
-    WS: "wss://stream.bybit.com/v5/public/linear",
-    MAX: 100,
-    BATCH: 10,
-    REPEAT: 900000,   // 15 минут паузы между повторными сигналами
-    RETEST_WINDOW: 300000 // 5 минут на ретест
+"use strict";
+const CONFIG={
+ CATEGORY:"linear",TOP_SYMBOLS:100,ORDERBOOK_DEPTH:50,WS_SYMBOLS_PER_SOCKET:20,
+ EXCLUDED_SYMBOLS:new Set(),FLOW_WINDOW_MS:20000,FLOW_BASELINE_MS:120000,MAX_TRADES:700,
+ ORDERBOOK_RANGE:.004,WALL_MAX_DISTANCE:.008,WALL_STABLE_MS:5000,WALL_TTL_MS:180000,
+ WALL_MIN_RATIO:3.5,WALL_MIN_CONCENTRATION:.55,GLOBAL_MIN_WALL:15000,
+ SCAN_MS:150,ACTIVE_SCAN_MS:80,MANAGER_MS:350,UI_MS:650,HTF_REFRESH_MS:300000,
+ ENTRY_WINDOW_MS:30000,SETUP_TTL_MS:300000,HARD_TTL_MS:900000,COOLDOWN_MS:45000,
+ SAME_SETUP_COOLDOWN_MS:120000,MIN_SCORE:72,MIN_EXECUTION:65,MIN_RR:1.45,
+ MAX_SPREAD:.0012,MAX_STALE_BOOK_MS:2500,MAX_STALE_TRADE_MS:7000,MAX_STALE_HTF_MS:420000,
+ PING_MS:20000,SOCKET_STALE_MS:7000,RECONNECT_BASE_MS:1000,RECONNECT_MAX_MS:15000,
+ HTF_LIMITS:{"4H":120,"1H":160,"15M":180,"5M":200},DEBUG:false
 };
-
-const $ = id => document.getElementById(id);
-
-class Scanner {
-    constructor() {
-        this.ws = null;
-        this.symbols = [];
-        this.market = {};
-        this.loop = null;
-        this.activeCvdSymbol = null;
-    }
-
-    async start() {
-        if (this.ws) return;
-        await this.load();
-        this.connect();
-        this.loop = setInterval(() => this.drawCVD(), 500);
-    }
-
-    stop() {
-        clearInterval(this.loop);
-        if (this.ws) {
-            this.ws.onclose = null;
-            this.ws.close();
-            this.ws = null;
-            $("status").textContent = "STOPPED";
-            $("status").style.color = "#F6465D";
-        }
-    }
-
-    async load() {
-        try {
-            const res = await fetch(CFG.REST);
-            const j = await res.json();
-            this.symbols = j.result.list
-                .filter(x => x.symbol.endsWith("USDT") && parseFloat(x.turnover24h) > 0)
-                .sort((a, b) => +b.turnover24h - +a.turnover24h)
-                .slice(0, CFG.MAX)
-                .map(x => x.symbol);
-
-            this.symbols.forEach(s => {
-                this.market[s] = {
-                    price: 0,
-                    trades: [],
-                    candles: [],
-                    bids: new Map(), // Правильное хранение стакана
-                    asks: new Map(),
-                    cvd: [],        // ИЗОЛИРОВАННЫЙ CVD ДЛЯ КАЖДОЙ МОНЕТЫ
-                    state: "IDLE",
-                    pumpHigh: 0,
-                    pumpLow: 0,
-                    pumpStart: 0,
-                    lastSignal: 0,
-                    retests: 0
-                };
-            });
-
-            $("coins").textContent = this.symbols.length;
-            this.updateCvdDropdown();
-        } catch(e) {
-            $("status").textContent = "REST ERROR";
-        }
-    }
-
-    updateCvdDropdown() {
-        const sel = $("cvdSelect");
-        sel.innerHTML = '<option value="">-- Выбрать монету --</option>';
-        this.symbols.forEach(s => {
-            const opt = document.createElement("option");
-            opt.value = s;
-            opt.textContent = s;
-            sel.appendChild(opt);
-        });
-        sel.onchange = (e) => {
-            if (e.target.value) this.activeCvdSymbol = e.target.value;
-        };
-    }
-
-    connect() {
-        this.ws = new WebSocket(CFG.WS);
-        this.ws.onopen = () => {
-            $("status").textContent = "ONLINE";
-            $("status").style.color = "#00C076";
-            this.subscribe();
-        };
-        this.ws.onclose = () => {
-            $("status").textContent = "RECONNECTING";
-            $("status").style.color = "#F0B90B";
-            setTimeout(() => { if ($("status").textContent !== "STOPPED") this.connect(); }, 3000);
-        };
-        this.ws.onmessage = e => this.onMsg(JSON.parse(e.data));
-    }
-
-    subscribe() {
-        let i = 0;
-        const timer = setInterval(() => {
-            if (i >= this.symbols.length || !this.ws || this.ws.readyState !== WebSocket.OPEN) {
-                return clearInterval(timer);
-            }
-            const args = [];
-            // Используем depth 25 для снижения нагрузки
-            this.symbols.slice(i, i + CFG.BATCH).forEach(s => {
-                args.push("publicTrade." + s, "kline.1." + s, "orderbook.25." + s);
-            });
-            this.ws.send(JSON.stringify({ op: "subscribe", args }));
-            $("ws").textContent = Math.min(CFG.MAX, i + CFG.BATCH);
-            i += CFG.BATCH;
-        }, 250);
-    }
-
-    onMsg(m) {
-        if (!m.topic) return;
-        const p = m.topic.split(".");
-        const type = p[0];
-        const sym = p[p.length - 1];
-        const mk = this.market[sym];
-        if (!mk) return;
-
-        // 1. ОБРАБОТКА ТРЕЙДОВ И ИЗОЛИРОВАННОГО CVD
-        if (type === "publicTrade" && Array.isArray(m.data)) {
-            m.data.forEach(t => {
-                const price = +t.p, qty = +t.v, val = price * qty;
-                mk.price = price;
-                mk.trades.push({ p: price, v: qty, s: t.S, t: +t.T, val });
-                if (mk.trades.length > 450) mk.trades.shift();
-
-                // Расчет CVD строго для текущей монеты в USDT
-                const lastCvd = mk.cvd.length ? mk.cvd[mk.cvd.length - 1] : 0;
-                const delta = (t.S === "Buy" ? 1 : -1) * val;
-                mk.cvd.push(lastCvd + delta);
-                if (mk.cvd.length > 300) mk.cvd.shift();
-            });
-            this.onTradeEvent(sym);
-        }
-
-        // 2. ОБРАБОТКА СВЕЧЕЙ
-        if (type === "kline" && Array.isArray(m.data)) {
-            const k = m.data[0];
-            mk.candles.push({ h: +k.high, l: +k.low, c: +k.close, v: +k.volume });
-            if (mk.candles.length > 120) mk.candles.shift();
-        }
-
-        // 3. ИСПРАВЛЕННАЯ ОБРАБОТКА СТАКАНА (SNAPSHOT / DELTA)
-        if (type === "orderbook" && m.data) {
-            if (m.type === "snapshot") {
-                mk.bids.clear();
-                mk.asks.clear();
-            }
-            if (Array.isArray(m.data.b)) {
-                m.data.b.forEach(([p, q]) => {
-                    const price = parseFloat(p), qty = parseFloat(q);
-                    qty === 0 ? mk.bids.delete(price) : mk.bids.set(price, qty);
-                });
-            }
-            if (Array.isArray(m.data.a)) {
-                m.data.a.forEach(([p, q]) => {
-                    const price = parseFloat(p), qty = parseFloat(q);
-                    qty === 0 ? mk.asks.delete(price) : mk.asks.set(price, qty);
-                });
-            }
-        }
-    }
-
-    flow(m) {
-        let buy = 0, sell = 0, n = Date.now();
-        m.trades.forEach(t => {
-            if (n - t.t < 10000) {
-                t.s === "Buy" ? (buy += t.val) : (sell += t.val);
-            }
-        });
-        return { buy, sell, ratio: sell / (buy || 1) };
-    }
-
-    structure(c) {
-        if (c.length < 5) return false;
-        const a = c.at(-3), b = c.at(-1);
-        return b.h < a.h && b.c < a.c; // Понижающийся максимум и закрытие
-    }
-
-    // ИСПРАВЛЕННЫЙ РАСЧЕТ СТЕНКИ В USDT
-    dynamicWall(m) {
-        if (m.asks.size === 0 || m.bids.size === 0) return 0;
-        
-        const sortedAsks = [...m.asks.entries()].sort((a, b) => a[0] - b[0]).slice(0, 8);
-        const sortedBids = [...m.bids.entries()].sort((a, b) => b[0] - a[0]).slice(0, 8);
-
-        const askUsd = sortedAsks.reduce((s, [p, q]) => s + (p * q), 0);
-        const bidUsd = sortedBids.reduce((s, [p, q]) => s + (p * q), 0);
-
-        return askUsd > bidUsd * 1.7 ? 10 : 0;
-    }
-
-    score(m) {
-        if (m.candles.length < 20) return 0;
-        const last = m.candles.at(-1);
-        const avg = m.candles.slice(-20).reduce((s, x) => s + x.v, 0) / 20 || 1;
-        const pump = (m.pumpHigh - m.pumpLow) / (m.pumpLow || 1) * 100;
-        const f = this.flow(m);
-        
-        let s = 0;
-        if (pump > 8) s += 25; else if (pump > 5) s += 18;
-        if (last.v > avg * 3) s += 20; else if (last.v > avg * 2) s += 12;
-        if (this.structure(m.candles)) s += 25;
-        if (f.ratio > 2) s += 20; else if (f.ratio > 1.5) s += 10;
-        s += this.dynamicWall(m);
-
-        return Math.min(100, s);
-    }
-
-    render(sym, m, score, retest = false) {
-        const e = m.price;
-        const sl = m.pumpHigh * 1.003; // Стоп 0.3% за хай
-        const R = sl - e;
-        const tp1 = e - R * 1.5;
-        const tp2 = e - R * 3;
-
-        const div = document.createElement("div");
-        div.className = "signal";
-        div.innerHTML = `
-            <div class="row" style="justify-content:space-between">
-                <b>${retest ? "🔁 RETEST SHORT" : "🔴 FADE SHORT"} ${sym}</b>
-                <span class="badge">${score}/100</span>
-            </div>
-            <div class="mut" style="margin-top:6px">Entry: <b>${e.toFixed(5)}</b> • SL: <b style="color:var(--r)">${sl.toFixed(5)}</b></div>
-            <div class="mut">TP1: <b style="color:var(--g)">${tp1.toFixed(5)}</b> • TP2: <b style="color:var(--g)">${tp2.toFixed(5)}</b></div>
-            <div class="mut" style="margin-top:4px">Памп: +${((m.pumpHigh - m.pumpLow)/m.pumpLow*100).toFixed(1)}% • Sell Imbalance: ${this.flow(m).ratio.toFixed(1)}x</div>
-        `;
-        $("signals").prepend(div);
-        $("sig").textContent = +$("sig").textContent + 1;
-
-        // Звуковой сигнал
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const o = ctx.createOscillator(), g = ctx.createGain();
-            o.frequency.value = retest ? 660 : 880;
-            o.connect(g); g.connect(ctx.destination); g.gain.value = 0.05;
-            o.start(); o.stop(ctx.currentTime + 0.15);
-        } catch(e){}
-    }
-
-    onTradeEvent(sym) {
-        const m = this.market[sym];
-        if (m.candles.length < 10) return;
-        
-        const last = m.candles.at(-1);
-        const c5 = m.candles.at(-6) || m.candles[0];
-        const pump = (last.c - c5.c) / c5.c * 100;
-
-        // 1. Детектируем начало пампа
-        if (pump > 4.5 && m.state === "IDLE") {
-            m.state = "WATCH";
-            m.pumpHigh = last.h;
-            m.pumpLow = c5.l;
-            m.pumpStart = Date.now();
-            this.activeCvdSymbol = sym; // Авто-фокус CVD на монете в пампе
-        }
-
-        if (m.state !== "WATCH") return;
-
-        // Обновляем High во время слежения
-        if (last.h > m.pumpHigh) m.pumpHigh = last.h;
-
-        // Сброс по тайм-ауту
-        if (Date.now() - m.pumpStart > +$("watchSec").value * 1000) {
-            m.state = "IDLE";
-            return;
-        }
-
-        const score = this.score(m);
-        $("watch").textContent = Object.values(this.market).filter(x => x.state === "WATCH").length;
-        $("trap").style.width = Math.min(100, (this.flow(m).ratio / 3) * 100) + "%";
-
-        if (score < +$("mode").value) return;
-        if (!this.structure(m.candles)) return;
-
-        // Первый сигнал
-        if (Date.now() - m.lastSignal > CFG.REPEAT) {
-            m.lastSignal = Date.now();
-            m.retests = 0;
-            this.render(sym, m, score, false);
-            return;
-        }
-
-        // Логика Ретеста (окно 5 минут)
-        const nearTop = (m.pumpHigh - m.price) / m.pumpHigh < 0.012;
-        if (nearTop && m.retests === 0 && (Date.now() - m.lastSignal < CFG.RETEST_WINDOW)) {
-            m.retests++;
-            this.render(sym, m, score, true);
-        }
-    }
-
-    drawCVD() {
-        const c = $("cvd"), ctx = c.getContext("2d");
-        ctx.clearRect(0, 0, c.width, c.height);
-
-        const sym = this.activeCvdSymbol;
-        $("cvdSymbol").textContent = sym || "---";
-        if (!sym || !this.market[sym]) return;
-
-        const cvdData = this.market[sym].cvd;
-        if (cvdData.length < 2) return;
-
-        const mn = Math.min(...cvdData), mx = Math.max(...cvdData), r = mx - mn || 1;
-        
-        ctx.beginPath();
-        ctx.strokeStyle = cvdData[cvdData.length - 1] >= cvdData[0] ? "#00C076" : "#F6465D";
-        ctx.lineWidth = 2;
-
-        cvdData.forEach((v, i) => {
-            const x = (i / (cvdData.length - 1)) * c.width;
-            const y = c.height - ((v - mn) / r) * (c.height - 20) - 10;
-            i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
-        });
-        ctx.stroke();
-    }
+const REST="https://api.bybit.com";const WSURL="wss://stream.bybit.com/v5/public/linear";
+const books=new Map(),trades=new Map(),marketMeta=new Map(),htfData=new Map(),wallStates=new Map(),signals=new Map(),cooldowns=new Map(),setupHistory=new Map(),health=new Map(),dirty=new Set(),sockets=[];
+let universe=[],running=false,cycle=0,scanTimer=0,managerTimer=0,uiTimer=0,htfTimer=0,universeTimer=0,reconnectTimer=0;
+const metrics={signalsCreated:0,wsMessages:0,lastLag:0};
+const paper={open:new Map(),closed:[],wins:0,losses:0,totalR:0};
+const $=id=>document.getElementById(id);const now=()=>Date.now();
+const n=(v,d=0)=>{const x=Number(v);return Number.isFinite(x)?x:d};
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const fmtUsd=v=>{v=n(v);if(v>=1e6)return "$"+(v/1e6).toFixed(2)+"M";if(v>=1e3)return "$"+(v/1e3).toFixed(1)+"K";return "$"+v.toFixed(0)};
+const fmtPct=v=>(n(v)*100).toFixed(3)+"%";
+const fmtPrice=(s,v)=>{const tick=n(marketMeta.get(s)?.tickSize,.000001);const p=n(v);const d=Math.max(0,(String(tick).split(".")[1]||"").replace(/0+$/g,"").length);return p.toFixed(Math.min(8,Math.max(2,d)))};
+const distPct=(a,b)=>a&&b?Math.abs(a-b)/b:Infinity;
+const tickRound=(s,p)=>{const t=n(marketMeta.get(s)?.tickSize,.000001);return Math.round(p/t)*t};
+function setStatus(t){$("status").textContent=t}
+function markDirty(s){dirty.add(s)}
+function healthOf(s){if(!health.has(s))health.set(s,{bookRx:0,tradeRx:0,bookTs:0,tradeTs:0,bookValid:false,seqErrors:0,reconnects:0,lastError:"",socketId:null});return health.get(s)}
+function ensureBook(s){if(!books.has(s))books.set(s,{bids:new Map(),asks:new Map(),u:0,seq:0,cts:0,ts:0,lastRx:0,lastPrice:0,lastTradePrice:0,bestBid:0,bestAsk:0,spread:0,spreadPct:0,valid:false,desynced:false});return books.get(s)}
+function ensureTrades(s){if(!trades.has(s))trades.set(s,[]);return trades.get(s)}
+function clearBook(s){const b=ensureBook(s);b.bids.clear();b.asks.clear();b.u=0;b.seq=0;b.cts=0;b.ts=0;b.lastRx=0;b.valid=false;b.desynced=true;b.bestBid=0;b.bestAsk=0;b.spread=0;b.spreadPct=0;healthOf(s).bookValid=false}
+function applyLevels(map,arr){for(const row of Array.isArray(arr)?arr:[]){const p=n(row?.[0]),q=n(row?.[1]);if(!(p>0))continue;if(q<=0)map.delete(p);else map.set(p,q)}}
+function recalcBook(s){const b=ensureBook(s);let bb=0,ba=Infinity;for(const p of b.bids.keys())if(p>bb)bb=p;for(const p of b.asks.keys())if(p<ba)ba=p;b.bestBid=bb;b.bestAsk=Number.isFinite(ba)?ba:0;b.spread=bb&&b.bestAsk?b.bestAsk-bb:0;b.spreadPct=bb&&b.bestAsk?b.spread/bestMid(b):Infinity;b.lastPrice=b.lastTradePrice||bestMid(b);}
+function bestMid(b){return b.bestBid&&b.bestAsk?(b.bestBid+b.bestAsk)/2:(b.bestBid||b.bestAsk||b.lastPrice||0)}
+    function handleBookMessage(msg){const d=msg?.data;if(!d?.s)return;const s=d.s,b=ensureBook(s),h=healthOf(s),type=msg.type;
+ if(type==="snapshot"){
+  b.bids.clear();b.asks.clear();applyLevels(b.bids,d.b);applyLevels(b.asks,d.a);b.u=n(d.u);b.seq=n(d.seq);b.cts=n(d.cts);b.ts=n(msg.ts);b.lastRx=now();b.desynced=false;b.valid=true;recalcBook(s);h.bookRx=b.lastRx;h.bookTs=b.ts;h.bookValid=true;markDirty(s);return;
+ }
+ if(type!=="delta")return;
+ if(!b.valid||b.desynced)return;
+ const u=n(d.u);if(u<b.u)return;if(u===b.u&&n(d.seq)<=b.seq)return;
+ applyLevels(b.bids,d.b);applyLevels(b.asks,d.a);b.u=u;b.seq=n(d.seq);b.cts=n(d.cts);b.ts=n(msg.ts);b.lastRx=now();recalcBook(s);h.bookRx=b.lastRx;h.bookTs=b.ts;markDirty(s);
 }
-
-const scanner = new Scanner();
-$("start").onclick = () => scanner.start();
-$("stop").onclick = () => scanner.stop();
-$("clear").onclick = () => { $("signals").innerHTML = ""; $("sig").textContent = 0; };
+function handleTradeMessage(msg){const arr=Array.isArray(msg?.data)?msg.data:[];for(const x of arr){const s=x?.s;if(!s||!marketMeta.has(s))continue;const p=n(x.p),q=n(x.v);const side=String(x.S||"").toUpperCase();if(!(p>0&&q>0)||!(side==="BUY"||side==="SELL"))continue;const t=ensureTrades(s),rx=now(),T=n(x.T,rx),id=String(x.i||`${T}-${p}-${q}-${side}`),b=ensureBook(s),m=marketMeta.get(s);const item={id,price:p,qty:q,usd:p*q,side,exchangeTime:T,receivedTime:rx,seq:n(x.seq)};t.push(item);while(t.length&&rx-t[0].receivedTime>Math.max(CONFIG.FLOW_BASELINE_MS,60000))t.shift();while(t.length>CONFIG.MAX_TRADES)t.shift();b.lastTradePrice=p;b.lastPrice=p;m.lastPrice=p;const h=healthOf(s);h.tradeRx=rx;h.tradeTs=T;markDirty(s)}}
+function handleWS(msg,state){metrics.wsMessages++;state.lastRx=now();if(msg?.op==="pong"||msg?.ret_msg==="pong")return;if(msg?.topic?.startsWith("orderbook."))handleBookMessage(msg);else if(msg?.topic?.startsWith("publicTrade."))handleTradeMessage(msg)}
+function socketGroups(){const syms=universe.map(x=>x.symbol);const out=[];for(let i=0;i<syms.length;i+=CONFIG.WS_SYMBOLS_PER_SOCKET)out.push(syms.slice(i,i+CONFIG.WS_SYMBOLS_PER_SOCKET));return out}
+function createSocket(symbols,index){const st={index,symbols,ws:null,manual:false,attempt:0,lastRx:0,ping:null,reconnect:null};const connect=()=>{if(st.manual||!running)return;try{const ws=new WebSocket(WSURL);st.ws=ws;ws.onopen=()=>{st.attempt=0;st.lastRx=now();setTimeout(()=>{if(ws.readyState===1)ws.send(JSON.stringify({op:"subscribe",args:symbols.flatMap(s=>[`orderbook.${CONFIG.ORDERBOOK_DEPTH}.${s}`,`publicTrade.${s}`])}))},50);st.ping=setInterval(()=>{if(ws.readyState===1)ws.send(JSON.stringify({op:"ping"}))},CONFIG.PING_MS)};ws.onmessage=e=>{try{handleWS(JSON.parse(e.data),st)}catch(err){console.warn(err)}};ws.onerror=()=>{};ws.onclose=()=>{if(st.ping)clearInterval(st.ping);if(!st.manual&&running){for(const s of symbols){clearBook(s);healthOf(s).reconnects++}const delay=Math.min(CONFIG.RECONNECT_MAX_MS,CONFIG.RECONNECT_BASE_MS*Math.pow(2,st.attempt++));clearTimeout(st.reconnect);st.reconnect=setTimeout(connect,delay)}}}catch(e){st.attempt++;st.reconnect=setTimeout(connect,Math.min(CONFIG.RECONNECT_MAX_MS,CONFIG.RECONNECT_BASE_MS*Math.pow(2,st.attempt)))}};connect();return st}
+function closeSockets(){for(const st of sockets){st.manual=true;clearTimeout(st.reconnect);clearInterval(st.ping);try{st.ws?.close()}catch{}}sockets.length=0}
+function startSockets(){closeSockets();for(const g of socketGroups())sockets.push(createSocket(g,sockets.length))}
+async function rest(path,params={},timeout=10000){const u=new URL(REST+path);Object.entries(params).forEach(([k,v])=>{if(v!==undefined&&v!==null)u.searchParams.set(k,v)});const c=new AbortController(),tm=setTimeout(()=>c.abort(),timeout);try{const r=await fetch(u,{signal:c.signal,cache:"no-store"});if(!r.ok)throw Error(`HTTP ${r.status}`);const j=await r.json();if(n(j.retCode)!==0)throw Error(j.retMsg||"Bybit error");return j}finally{clearTimeout(tm)}}
+    async function loadInstruments(){let cursor="";do{const j=await rest("/v5/market/instruments-info",{category:"linear",limit:1000,cursor:cursor||undefined});for(const x of j.result.list||[]){if(x.status!=="Trading"||x.contractType!=="LinearPerpetual"||x.quoteCoin!=="USDT")continue;marketMeta.set(x.symbol,{symbol:x.symbol,tickSize:n(x.priceFilter?.tickSize),qtyStep:n(x.lotSizeFilter?.qtyStep),minOrderQty:n(x.lotSizeFilter?.minOrderQty),minNotional:n(x.lotSizeFilter?.minNotionalValue),lastPrice:0,turnover24h:0,rank:9999})}cursor=j.result.nextPageCursor||""}while(cursor)}
+async function loadUniverse(){const j=await rest("/v5/market/tickers",{category:"linear"});const a=[];for(const x of j.result.list||[]){const m=marketMeta.get(x.symbol);if(!m||CONFIG.EXCLUDED_SYMBOLS.has(x.symbol))continue;const price=n(x.lastPrice),turn=n(x.turnover24h);if(!(price>0&&turn>0))continue;m.lastPrice=price;m.turnover24h=turn;m.rank=0;a.push({symbol:x.symbol,price,turnover24h:turn})}a.sort((x,y)=>y.turnover24h-x.turnover24h);universe=a.slice(0,CONFIG.TOP_SYMBOLS).map((x,i)=>{marketMeta.get(x.symbol).rank=i+1;return{...x,rank:i+1}});for(const s of universe.map(x=>x.symbol)){ensureBook(s);ensureTrades(s);healthOf(s)}return universe}
+function closedKlines(list){const t=now();return(list||[]).map(x=>({start:n(x[0]),open:n(x[1]),high:n(x[2]),low:n(x[3]),close:n(x[4]),volume:n(x[5]),turnover:n(x[6]),end:n(x[0])+intervalMs(x[7]||"1")})).filter(x=>x.end<=t)}
+function intervalMs(i){return ({"5":300000,"15":900000,"60":3600000,"240":14400000}[String(i)]||300000)}
+async function loadCandles(s,interval,limit){const j=await rest("/v5/market/kline",{category:"linear",symbol:s,interval,limit});return (j.result.list||[]).map(x=>({start:n(x[0]),open:n(x[1]),high:n(x[2]),low:n(x[3]),close:n(x[4]),volume:n(x[5]),turnover:n(x[6]),end:n(x[0])+intervalMs(interval)})).filter(x=>x.end<=now()).reverse()}
+function atr(cs,len=14){if(cs.length<len+1)return 0;let tr=[];for(let i=1;i<cs.length;i++){const c=cs[i],p=cs[i-1];tr.push(Math.max(c.high-c.low,Math.abs(c.high-p.close),Math.abs(c.low-p.close)))}let a=tr.slice(0,len).reduce((a,b)=>a+b,0)/len;for(let i=len;i<tr.length;i++)a=(a*(len-1)+tr[i])/len;return a}
+function fractals(cs){const hi=[],lo=[];for(let i=2;i<cs.length-2;i++){if(cs[i].high>cs[i-1].high&&cs[i].high>=cs[i+1].high&&cs[i].high>cs[i-2].high&&cs[i].high>=cs[i+2].high)hi.push(cs[i].high);if(cs[i].low<cs[i-1].low&&cs[i].low<=cs[i+1].low&&cs[i].low<cs[i-2].low&&cs[i].low<=cs[i+2].low)lo.push(cs[i].low)}return{hi,lo}}
+function zones(cs){if(!cs.length)return[];const f=fractals(cs),last=cs.at(-1).close,z=[];for(const p of f.lo.slice(-20))z.push({type:"SUPPORT",price:p,tf:"HTF",confluence:1});for(const p of f.hi.slice(-20))z.push({type:"RESISTANCE",price:p,tf:"HTF",confluence:1});return z.filter(z=>distPct(z.price,last)<.08)}
+function mergeZones(arr){const out=[];for(const z of arr.sort((a,b)=>a.price-b.price)){const q=out.find(x=>x.type===z.type&&distPct(x.price,z.price)<.0018);if(q){q.price=(q.price*q.confluence+z.price)/(q.confluence+1);q.confluence++}else out.push({...z})}return out}
+async function refreshHTF(){const syms=universe.map(x=>x.symbol);for(let i=0;i<syms.length;i+=5){await Promise.all(syms.slice(i,i+5).map(async s=>{try{const [h4,h1,m15,m5]=await Promise.all([loadCandles(s,"240",CONFIG.HTF_LIMITS["4H"]),loadCandles(s,"60",CONFIG.HTF_LIMITS["1H"]),loadCandles(s,"15",CONFIG.HTF_LIMITS["15M"]),loadCandles(s,"5",CONFIG.HTF_LIMITS["5M"])]);const price=marketMeta.get(s)?.lastPrice||ensureBook(s).lastPrice;htfData.set(s,{zones:mergeZones([...zones(h4),...zones(h1),...zones(m15),...zones(m5)]),atr15:atr(m15),atr5:atr(m5),price,updatedAt:now()})}catch(e){console.warn("HTF",s,e)}}));await sleep(60)}}
+function recentTrades(s,ms=CONFIG.FLOW_WINDOW_MS){const t=trades.get(s)||[],cut=now()-ms;return t.filter(x=>x.receivedTime>=cut)}
+function flow(s,ms=CONFIG.FLOW_WINDOW_MS){const a=recentTrades(s,ms);let buy=0,sell=0,bc=0,sc=0;for(const x of a){if(x.side==="BUY"){buy+=x.usd;bc++}else{sell+=x.usd;sc++}}const total=buy+sell,net=buy-sell;return{buy,sell,total,net,imbalance:total?net/total:0,buyCount:bc,sellCount:sc,lastTrade:a.at(-1)?.receivedTime||0}}
+function baseline(s){const a=recentTrades(s,CONFIG.FLOW_BASELINE_MS);if(!a.length)return{avg:0,median:0};const buckets=new Map();for(const x of a){const k=Math.floor(x.receivedTime/5000);buckets.set(k,(buckets.get(k)||0)+x.usd)}const v=[...buckets.values()].filter(x=>x>0).sort((a,b)=>a-b);return{avg:v.length?v.reduce((a,b)=>a+b,0)/v.length:0,median:v.length?v[Math.floor(v.length/2)]:0}}
+function flowContext(s){const f=flow(s),bl=baseline(s),intensity=bl.median?f.total/(bl.median*4):0;return{...f,intensity,dir:f.imbalance>.18?"BUY":f.imbalance<-.18?"SELL":"NEUTRAL",fresh:now()-f.lastTrade<=CONFIG.MAX_STALE_TRADE_MS,quality:clamp(50+Math.abs(f.imbalance)*45+Math.min(25,intensity*10),0,100)}}
+    function bookLevels(s,side,range=CONFIG.ORDERBOOK_RANGE){const b=ensureBook(s),p=b.lastTradePrice||bestMid(b);if(!(p>0))return[];const map=side==="BID"?b.bids:b.asks;const out=[];for(const [price,qty] of map){if(distPct(price,p)<=range)out.push({price,qty,usd:price*qty,distance:distPct(price,p)})}return out}
+function localLiquidity(s,side){const a=bookLevels(s,side);if(!a.length)return{median:0,mean:0,total:0,count:0};const v=a.map(x=>x.usd).sort((x,y)=>x-y);return{median:v[Math.floor(v.length/2)]||0,mean:v.reduce((x,y)=>x+y,0)/v.length,total:v.reduce((x,y)=>x+y,0),count:v.length}}
+function wallThreshold(s,side){const m=marketMeta.get(s)||{},l=localLiquidity(s,side),turn=n(m.turnover24h);let x=Math.max(CONFIG.GLOBAL_MIN_WALL,l.median*4,l.mean*2.5,turn*.00001);if(turn>5e9)x=Math.max(x,500000);else if(turn>1e9)x=Math.max(x,250000);else if(turn>3e8)x=Math.max(x,100000);return x}
+function clusterWalls(s,side){const a=bookLevels(s,side).sort((x,y)=>x.price-y.price),out=[];if(!a.length)return[];const tol=Math.max(n(marketMeta.get(s)?.tickSize)*10,(ensureBook(s).lastTradePrice||0)*.00025);for(const x of a){let c=out.at(-1);if(!c||Math.abs(c.price-x.price)>tol){c={side,price:x.price,maxUsd:x.usd,totalUsd:0,levels:[],concentration:0};out.push(c)}c.levels.push(x);c.totalUsd+=x.usd;c.maxUsd=Math.max(c.maxUsd,x.usd);c.price=c.levels.reduce((a,b)=>a+b.price,0)/c.levels.length}for(const c of out){c.concentration=c.totalUsd?c.maxUsd/c.totalUsd:0;c.distance=distPct(c.price,ensureBook(s).lastTradePrice||bestMid(ensureBook(s)));c.ratio=c.maxUsd/Math.max(1,localLiquidity(s,side).median);c.threshold=wallThreshold(s,side)}return out.filter(c=>c.maxUsd>=c.threshold&&c.ratio>=CONFIG.WALL_MIN_RATIO&&c.distance<=CONFIG.WALL_MAX_DISTANCE&&c.concentration>=CONFIG.WALL_MIN_CONCENTRATION)}
+function wallKey(s,side,price){const t=Math.max(n(marketMeta.get(s)?.tickSize)*10,(ensureBook(s).lastTradePrice||price)*.00015);return `${s}:${side}:${Math.round(price/t)}`}
+function ensureWall(s,key,side,price){if(!wallStates.has(key))wallStates.set(key,{key,symbol:s,side,price,firstSeen:now(),lastSeen:now(),lastUsd:0,peakUsd:0,currentUsd:0,reducedUsd:0,addedUsd:0,tests:0,testActive:false,lastTestStart:0,successfulTests:0,replenishments:0,executions:0,cancellations:0,state:"NEW",lastCycle:0,spoof:0,absorption:0,stability:0});return wallStates.get(key)}
+function updateWalls(s){const p=ensureBook(s).lastTradePrice||bestMid(ensureBook(s));if(!(p>0))return[];const candidates=[...clusterWalls(s,"BID"),...clusterWalls(s,"ASK")],seen=new Set();for(const c of candidates){const k=wallKey(s,c.side,c.price),st=ensureWall(s,k,c.side,c.price);seen.add(k);const prev=st.currentUsd||c.maxUsd;st.lastSeen=now();st.lastCycle=cycle;st.price=c.price;st.currentUsd=c.maxUsd;st.peakUsd=Math.max(st.peakUsd,c.maxUsd);if(prev>0&&c.maxUsd<prev)st.reducedUsd+=prev-c.maxUsd;else if(prev>0&&c.maxUsd>prev)st.addedUsd+=c.maxUsd-prev;st.stability=clamp((now()-st.firstSeen)/CONFIG.WALL_STABLE_MS,0,1);const relation=st.side==="BID"?(p<=st.price*1.0012&&p>=st.price*.9988):(p>=st.price*.9988&&p<=st.price*1.0012);if(relation&&!st.testActive){st.testActive=true;st.tests++;st.lastTestStart=now()}if(!relation&&st.testActive){st.testActive=false;if(st.addedUsd>0&&st.currentUsd>=st.peakUsd*.75)st.replenishments++}const recentAttack=flow(s).sell;const attack=st.side==="BID"?recentAttack:flow(s).buy;const reduction=Math.max(0,prev-c.maxUsd);const attributed=Math.min(reduction,attack);st.executions=attributed;st.cancellations=Math.max(0,reduction-attributed);st.absorption=st.executions/Math.max(1,st.peakUsd);st.spoof=st.cancellations/Math.max(1,reduction);st.state=st.spoof>.8&&now()-st.firstSeen<15000?"SPOOF":st.currentUsd<st.peakUsd*.15?"REMOVED":st.replenishments>0?"REPLENISHING":st.testActive?"TESTED":st.stability>=1?"STABLE":"NEW"}
+for(const st of wallStates.values())if(st.symbol===s&&st.lastCycle!==cycle&&now()-st.lastSeen>CONFIG.WALL_TTL_MS)wallStates.delete(st.key);return [...wallStates.values()].filter(x=>x.symbol===s&&x.lastCycle===cycle)}
+function wallFor(s,dir){const side=dir==="LONG"?"BID":"ASK",p=ensureBook(s).lastTradePrice||bestMid(ensureBook(s));const arr=[...wallStates.values()].filter(x=>x.symbol===s&&x.side===side&&x.lastCycle===cycle&&x.state!=="SPOOF"&&x.state!=="REMOVED");arr.sort((a,b)=>distPct(a.price,p)-distPct(b.price,p));return arr[0]||null}
+function wallScore(st){if(!st)return 0;return clamp(25+st.stability*20+clamp(st.absorption*100,0,25)+Math.min(15,st.replenishments*5)+Math.min(15,st.tests*5)-st.spoof*25,0,100)}
+function htfContext(s,dir){const h=htfData.get(s),p=ensureBook(s).lastTradePrice||marketMeta.get(s)?.lastPrice;if(!h||!p||now()-h.updatedAt>CONFIG.MAX_STALE_HTF_MS)return null;const type=dir==="LONG"?"SUPPORT":"RESISTANCE";const z=h.zones.filter(x=>x.type===type).map(x=>({...x,d:distPct(x.price,p)})).filter(x=>dir==="LONG"?x.price<=p*1.01:x.price>=p*.99).sort((a,b)=>a.d-b.d)[0];if(!z)return null;return{zone:z,score:clamp(35-z.d*1000+Math.min(15,z.confluence*5),0,50),age:now()-h.updatedAt,atr5:h.atr5,atr15:h.atr15}}
+function directionalResponse(s,dir){const a=recentTrades(s,10000);if(a.length<3)return{score:0,valid:false};const p0=a[0].price,p1=a.at(-1).price,chg=(p1-p0)/p0;const desired=dir==="LONG"?chg:-chg;const f=flow(s,10000);const weakening=dir==="LONG"?f.sell<f.buy:f.buy<f.sell;return{score:clamp(20+desired*10000+(weakening?10:0),0,30),valid:true,change:chg}}
+    function setup(s,dir){const b=ensureBook(s),p=b.lastTradePrice||bestMid(b),h=htfContext(s,dir),w=wallFor(s,dir),f=flowContext(s),r=directionalResponse(s,dir);if(!(p>0&&h&&w&&f.fresh&&r.valid))return null;const wallS=wallScore(w);const flowS=clamp(30+Math.abs(f.imbalance)*45+(f.intensity>1?15:0),0,45);const responseS=r.score;const flowAligned=dir==="LONG"?f.dir!=="SELL":f.dir!=="BUY";if(distPct(p,w.price)>.004)return null;let score=h.score+wallS*.55+flowS*.55+responseS*.5;if(!flowAligned)score-=25;if(w.state==="SPOOF"||w.state==="REMOVED")score-=50;const spread=b.spreadPct;const exec=clamp(40+(spread<=CONFIG.MAX_SPREAD?25:0)+(b.lastRx&&now()-b.lastRx<500?15:0)+(f.fresh?15:0)+Math.min(10,w.stability*10),0,100);if(score<CONFIG.MIN_SCORE||exec<CONFIG.MIN_EXECUTION||spread>CONFIG.MAX_SPREAD)return null;const atrv=Math.max(h.atr5||0,p*.001);const entry=dir==="LONG"?(b.bestAsk||p):(b.bestBid||p);const stop=dir==="LONG"?Math.min(w.price,h.zone.price)-atrv*.35:Math.max(w.price,h.zone.price)+atrv*.35;const risk=Math.abs(entry-stop);if(!(risk>0))return null;const opp=dir==="LONG"?"RESISTANCE":"SUPPORT";const zonesOpp=htfData.get(s)?.zones.filter(x=>x.type===opp).filter(x=>dir==="LONG"?x.price>entry:x.price<entry).sort((a,b)=>Math.abs(a.price-entry)-Math.abs(b.price-entry));const tp=zonesOpp?.[0]?.price||(dir==="LONG"?entry+risk*1.7:entry-risk*1.7);const rr=Math.abs(tp-entry)/risk;if(rr<CONFIG.MIN_RR)return null;return{symbol:s,direction:dir,entryPrice:tickRound(s,entry),stopLoss:tickRound(s,stop),takeProfit:tickRound(s,tp),risk,rr,score:clamp(score,0,100),execution:exec,wall:w,htf:h,flow:f,response:r,createdAt:now(),entryValidUntil:now()+CONFIG.ENTRY_WINDOW_MS,setupExpiresAt:now()+CONFIG.SETUP_TTL_MS,hardExpiresAt:now()+CONFIG.HARD_TTL_MS,status:"ENTRY",retestSeen:false,leftWall:false,retestHigh:p,retestLow:p,fingerprint:`${dir}:${w.key}:${Math.round(entry/(atrv||p*.001))}`}}
+function paperOpen(sig,p){if(paper.open.has(sig.symbol)||!sig.retestSeen)return;paper.open.set(sig.symbol,{symbol:sig.symbol,direction:sig.direction,entry:p,sl:sig.stopLoss,tp:sig.takeProfit,entryTime:now(),mfe:0,mae:0,signal:sig.fingerprint})}
+function paperManage(){for(const [s,pos] of paper.open){const p=ensureBook(s).lastTradePrice||0;if(!(p>0))continue;const r=pos.direction==="LONG"?(p-pos.entry)/(Math.abs(pos.entry-pos.sl)||1):(pos.entry-p)/(Math.abs(pos.entry-pos.sl)||1);const adverse=pos.direction==="LONG"?(p-pos.entry)/(Math.abs(pos.entry-pos.sl)||1):(pos.entry-p)/(Math.abs(pos.entry-pos.sl)||1);pos.mfe=Math.max(pos.mfe,r);pos.mae=Math.min(pos.mae,adverse);const hitTP=pos.direction==="LONG"?p>=pos.tp:p<=pos.tp;const hitSL=pos.direction==="LONG"?p<=pos.sl:p>=pos.sl;if(hitTP||hitSL){const rr=hitTP?Math.abs(pos.tp-pos.entry)/Math.abs(pos.entry-pos.sl):-1;paper.closed.push({...pos,exit:p,r:rr,exitTime:now()});if(hitTP)paper.wins++;else paper.losses++;paper.totalR+=rr;paper.open.delete(s);if(paper.closed.length>500)paper.closed.shift()}}}
+function signalValid(sig){const t=now();if(t>sig.hardExpiresAt)return false;if(sig.status==="ENTRY"&&t>sig.entryValidUntil)sig.status="WAITING";const b=ensureBook(sig.symbol),h=healthOf(sig.symbol);if(!b.valid||b.desynced||t-b.lastRx>CONFIG.MAX_STALE_BOOK_MS)return false;const w=wallStates.get(sig.wall.key);if(!w||w.state==="SPOOF"||w.state==="REMOVED")return false;const p=b.lastTradePrice||bestMid(b);if(sig.direction==="LONG"&&p<sig.stopLoss)return false;if(sig.direction==="SHORT"&&p>sig.stopLoss)return false;const f=flowContext(sig.symbol);if(sig.direction==="LONG"&&f.imbalance<-.45)return false;if(sig.direction==="SHORT"&&f.imbalance>.45)return false;const wdist=distPct(p,sig.wall.price);if(!sig.retestSeen){if(!sig.leftWall&&wdist>.004)sig.leftWall=true;if(sig.leftWall&&sig.direction==="LONG"&&p>=sig.wall.price&&wdist<.002)sig.retestSeen=true;if(sig.leftWall&&sig.direction==="SHORT"&&p<=sig.wall.price&&wdist<.002)sig.retestSeen=true;if(sig.status==="ENTRY"&&now()>sig.entryValidUntil)return false;}return true}
+function cooldownKey(s,d){return `${s}:${d}`}
+function canCreate(s,d,fp){const t=now(),k=cooldownKey(s,d);if((cooldowns.get(k)||0)>t)return false;const h=setupHistory.get(fp);return !(h&&h>t)}
+function createSignal(s,d){if(signals.has(s))return;const x=setup(s,d);if(!x)return;if(!canCreate(s,d,x.fingerprint))return;signals.set(s,x);cooldowns.set(cooldownKey(s,d),now()+CONFIG.COOLDOWN_MS);setupHistory.set(x.fingerprint,now()+CONFIG.SAME_SETUP_COOLDOWN_MS);metrics.signalsCreated++}
+function scanSymbol(s){const b=ensureBook(s),h=healthOf(s);if(!b.valid||b.desynced||now()-b.lastRx>CONFIG.MAX_STALE_BOOK_MS)return;cycle++;updateWalls(s);const existing=signals.get(s);if(existing&&!signalValid(existing)){signals.delete(s)}else if(existing)return;const l=setup(s,"LONG"),sh=setup(s,"SHORT");if(l&&sh)return;if(l)createSignal(s,"LONG");else if(sh)createSignal(s,"SHORT")}
+function scan(){if(!running)return;for(const s of universe.map(x=>x.symbol)){if(dirty.has(s)){dirty.delete(s);scanSymbol(s)}}}
+function manage(){paperManage();for(const [s,x] of signals){if(!signalValid(x)){signals.delete(s);continue}const b=ensureBook(s),p=b.lastTradePrice||bestMid(b);if(x.retestSeen)paperOpen(x,p);if(x.direction==="LONG"&&p>=x.takeProfit)x.status="TARGET";if(x.direction==="SHORT"&&p<=x.takeProfit)x.status="TARGET";if(now()>x.hardExpiresAt)signals.delete(s)}}
+    function htmlEsc(v){return String(v).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
+function render(){const box=$("signals"),arr=[...signals.values()].sort((a,b)=>b.createdAt-a.createdAt);if(!arr.length){box.innerHTML='<div class="empty">Нет активных setup. Сканер ждет подтверждения: HTF + wall + flow + reaction + execution.</div>';return}box.innerHTML=arr.map(x=>{const age=Math.round((now()-x.createdAt)/1000),p=ensureBook(x.symbol).lastTradePrice||0;return `<div class="card ${x.direction.toLowerCase()}"><div class="top"><div><span class="sym">${htmlEsc(x.symbol)}</span> <span class="dir">${x.direction}</span></div><div>${x.status}</div></div><div class="grid"><div class="kv"><span>Entry</span><b>${fmtPrice(x.symbol,x.entryPrice)}</b></div><div class="kv"><span>SL</span><b>${fmtPrice(x.symbol,x.stopLoss)}</b></div><div class="kv"><span>TP</span><b>${fmtPrice(x.symbol,x.takeProfit)}</b></div><div class="kv"><span>RR</span><b>${x.rr.toFixed(2)}</b></div><div class="kv"><span>Setup</span><b>${x.score.toFixed(0)}</b></div><div class="kv"><span>Execution</span><b>${x.execution.toFixed(0)}</b></div></div><div class="meter"><i style="width:${clamp(x.score,0,100)}%"></i></div><div class="reason">Wall ${x.wall.side} ${fmtUsd(x.wall.currentUsd)} • ${x.wall.state} • absorption ${(x.wall.absorption*100).toFixed(1)}% • tests ${x.wall.tests} • flow ${(x.flow.imbalance*100).toFixed(1)}% • spread ${fmtPct(ensureBook(x.symbol).spreadPct)} • retest ${x.retestSeen?"YES":"WAIT"} • age ${age}s • price ${fmtPrice(x.symbol,p)}</div></div>`}).join("")}
+function stats(){let booksOk=0,flowOk=0,walls=0,lag=0,c=0;for(const x of universe){const s=x.symbol,b=ensureBook(s),h=healthOf(s);if(b.valid&&!b.desynced&&now()-b.lastRx<CONFIG.MAX_STALE_BOOK_MS)booksOk++;if(now()-h.tradeRx<CONFIG.MAX_STALE_TRADE_MS)flowOk++;walls+=[...wallStates.values()].filter(w=>w.symbol===s&&now()-w.lastSeen<CONFIG.WALL_TTL_MS).length;if(b.lastRx){lag=Math.max(lag,now()-b.lastRx);c++}}$("mMon").textContent=universe.length;$("mBooks").textContent=booksOk;$("mFlow").textContent=flowOk;$("mWalls").textContent=walls;$("mSignals").textContent=signals.size;$("mLag").textContent=c?lag+"ms":"—"}
+function reconnectCheck(){
+ if(!running)return;
+ const t=now();
+ for(const st of sockets){
+  if(st.ws?.readyState===1&&t-st.lastRx>CONFIG.SOCKET_STALE_MS){try{st.ws.close()}catch{}}
+ }
+ for(const x of universe){
+  const sym=x.symbol,h=healthOf(sym);
+  if(h.bookRx&&t-h.bookRx>CONFIG.SOCKET_STALE_MS){
+   clearBook(sym);
+   const st=sockets.find(q=>q.symbols.includes(sym));
+   if(st?.ws?.readyState===1){
+    try{
+     st.ws.send(JSON.stringify({op:"unsubscribe",args:[`orderbook.${CONFIG.ORDERBOOK_DEPTH}.${sym}`,`publicTrade.${sym}`]}));
+     st.ws.send(JSON.stringify({op:"subscribe",args:[`orderbook.${CONFIG.ORDERBOOK_DEPTH}.${sym}`,`publicTrade.${sym}`]}));
+    }catch{}
+    
+   }
+  }
+ }
+}
+    async function start(){if(running)return;running=true;setStatus("Загрузка instruments…");try{await loadInstruments();await loadUniverse();setStatus("Загрузка HTF…");await refreshHTF();startSockets();scanTimer=setInterval(scan,CONFIG.SCAN_MS);managerTimer=setInterval(manage,CONFIG.MANAGER_MS);reconnectTimer=setInterval(reconnectCheck,2000);uiTimer=setInterval(()=>{stats();render()},CONFIG.UI_MS);htfTimer=setInterval(refreshHTF,CONFIG.HTF_REFRESH_MS);universeTimer=setInterval(async()=>{if(!running)return;try{const old=new Set(universe.map(x=>x.symbol));await loadUniverse();const changed=universe.some(x=>!old.has(x.symbol))||old.size!==universe.length;if(changed){setStatus("Universe changed → resync WS…");startSockets()}}catch(e){console.warn(e)}},600000);setStatus("Работает • data-driven")}catch(e){running=false;closeSockets();setStatus("Ошибка: "+e.message);console.error(e)}}
+function stop(){running=false;clearInterval(scanTimer);clearInterval(managerTimer);clearInterval(uiTimer);clearInterval(htfTimer);clearInterval(universeTimer);clearInterval(reconnectTimer);closeSockets();setStatus("Остановлен")}
+function clearAll(){signals.clear();wallStates.clear();cooldowns.clear();setupHistory.clear();dirty.clear();paper.open.clear();paper.closed.length=0;paper.wins=0;paper.losses=0;paper.totalR=0;render();stats()}
+$("startBtn").onclick=start;$("stopBtn").onclick=stop;$("clearBtn").onclick=clearAll;document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&running){for(const s of universe.map(x=>x.symbol))markDirty(s)}});
+    window.BybitInstitutionalOF={config:CONFIG,start,stop,clear:clearAll,signals,books,trades,walls:wallStates,diagnostics:()=>({running,symbols:universe.length,sockets:sockets.length,signals:signals.size,wsMessages:metrics.wsMessages,paper:{open:paper.open.size,closed:paper.closed.length,wins:paper.wins,losses:paper.losses,totalR:paper.totalR}})};
+render();stats();
 </script>
-</body>
-</html>
+</body></html>
