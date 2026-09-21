@@ -3,24 +3,47 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Bybit HTF OrderFlow — V4.1 TOP-200</title>
+<title>Bybit HTF OrderFlow — V5 FSM + Journal</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#07090d;color:#eef2f7;font:13px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}button,select{font:inherit}header{position:sticky;top:0;z-index:5;background:#0c1016;border-bottom:1px solid #202733;padding:10px}.title{font-weight:800;font-size:16px}.sub{color:#8994a3;font-size:11px;margin-top:3px}.bar{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.btn{border:1px solid #2b3544;background:#121822;color:#e9edf3;border-radius:8px;padding:8px 11px;cursor:pointer}.btn.on{background:#173c29;border-color:#2c8a55}.btn.stop{background:#32191c}.mode{display:flex;gap:5px;margin-top:8px}.mode .btn.active{background:#283a55;border-color:#4f82c5}.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:9px 0}.stat{background:#0e131b;border:1px solid #202733;border-radius:8px;padding:7px;text-align:center}.stat b{display:block;font-size:15px}.stat span{color:#7f8998;font-size:10px}.status{padding:7px 9px;background:#0d1219;border:1px solid #202733;border-radius:8px;color:#9aa5b4;margin-bottom:8px}.status.good{border-color:#285b3d;color:#9ee0b6}.status.bad{border-color:#68333a;color:#ffadb5}.filters{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}.filters label{background:#0e131b;border:1px solid #202733;border-radius:8px;padding:6px;color:#8f99a8}.filters select{display:block;width:100%;margin-top:4px;background:#121822;color:#fff;border:1px solid #293341;border-radius:6px;padding:6px}.section{padding:8px 0;color:#7f8998;font-weight:700}.card{background:#0d131b;border:1px solid #27303d;border-radius:10px;margin:7px 0;padding:10px}.card.long{border-left:4px solid #35c477}.card.short{border-left:4px solid #ef6672}.head{display:flex;justify-content:space-between;align-items:center}.sym{font-size:16px;font-weight:800}.side{font-weight:900}.side.long{color:#4fe08d}.side.short{color:#ff737e}.badge{padding:4px 7px;border-radius:6px;background:#171e28;color:#b7c0cc;font-size:10px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:8px}.kv{background:#111821;border-radius:6px;padding:6px}.kv small{display:block;color:#778293;font-size:10px}.kv b{font-size:12px}.flow{margin-top:8px;padding:7px;background:#111821;border-radius:7px}.stages{display:flex;gap:3px;flex-wrap:wrap;margin-top:8px}.stage{padding:4px 6px;background:#151c25;border-radius:5px;color:#778293;font-size:10px}.stage.ok{color:#9ee0b6;background:#143020}.stage.warn{color:#f2cf82;background:#302812}.foot{margin-top:8px;color:#7d8795;font-size:10px}.empty{padding:25px;text-align:center;color:#687384}.diag{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;line-height:1.5;white-space:pre-wrap;background:#080b10;border:1px solid #1c232d;border-radius:8px;padding:8px;color:#8995a5}.danger{color:#ff8e99}.oktxt{color:#8ce0ad}@media(min-width:800px){main{max-width:1100px;margin:auto}.grid{grid-template-columns:repeat(4,1fr)}}
+*{box-sizing:border-box}body{margin:0;background:#07090d;color:#eef2f7;font:13px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}button,select{font:inherit}header{position:sticky;top:0;z-index:5;background:#0c1016;border-bottom:1px solid #202733;padding:10px}.title{font-weight:800;font-size:16px}.sub{color:#8994a3;font-size:11px;margin-top:3px}.bar{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.btn{border:1px solid #2b3544;background:#121822;color:#e9edf3;border-radius:8px;padding:8px 11px;cursor:pointer}.btn.on{background:#173c29;border-color:#2c8a55}.btn.stop{background:#32191c}.btn.small{padding:5px 9px;font-size:11px}.mode{display:flex;gap:5px;margin-top:8px}.mode .btn.active{background:#283a55;border-color:#4f82c5}.engine .btn.active{background:#4a2f52;border-color:#a35fc4}.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:9px 0}.stat{background:#0e131b;border:1px solid #202733;border-radius:8px;padding:7px;text-align:center}.stat b{display:block;font-size:15px}.stat span{color:#7f8998;font-size:10px}.status{padding:7px 9px;background:#0d1219;border:1px solid #202733;border-radius:8px;color:#9aa5b4;margin-bottom:8px}.status.good{border-color:#285b3d;color:#9ee0b6}.status.bad{border-color:#68333a;color:#ffadb5}.filters{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}.filters label{background:#0e131b;border:1px solid #202733;border-radius:8px;padding:6px;color:#8f99a8}.filters select{display:block;width:100%;margin-top:4px;background:#121822;color:#fff;border:1px solid #293341;border-radius:6px;padding:6px}.section{padding:8px 0;color:#7f8998;font-weight:700}.card{background:#0d131b;border:1px solid #27303d;border-radius:10px;margin:7px 0;padding:10px}.card.long{border-left:4px solid #35c477}.card.short{border-left:4px solid #ef6672}.head{display:flex;justify-content:space-between;align-items:center}.sym{font-size:16px;font-weight:800}.side{font-weight:900}.side.long{color:#4fe08d}.side.short{color:#ff737e}.badge{padding:4px 7px;border-radius:6px;background:#171e28;color:#b7c0cc;font-size:10px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:8px}.kv{background:#111821;border-radius:6px;padding:6px}.kv small{display:block;color:#778293;font-size:10px}.kv b{font-size:12px}.flow{margin-top:8px;padding:7px;background:#111821;border-radius:7px}.stages{display:flex;gap:3px;flex-wrap:wrap;margin-top:8px}.stage{padding:4px 6px;background:#151c25;border-radius:5px;color:#778293;font-size:10px}.stage.ok{color:#9ee0b6;background:#143020}.stage.warn{color:#f2cf82;background:#302812}.stage.bad{color:#ff9fa8;background:#351820}.foot{margin-top:8px;color:#7d8795;font-size:10px}.empty{padding:25px;text-align:center;color:#687384}.diag{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;line-height:1.5;white-space:pre-wrap;background:#080b10;border:1px solid #1c232d;border-radius:8px;padding:8px;color:#8995a5}.danger{color:#ff8e99}.oktxt{color:#8ce0ad}.funnel{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:6px 0}.fn{background:#0e131b;border:1px solid #202733;border-radius:6px;padding:5px;text-align:center;font-size:10px}.fn b{display:block;font-size:13px;color:#cfd6e0}.fn span{color:#7f8998}.logbox{font-family:ui-monospace,Menlo,monospace;font-size:10px;background:#080b10;border:1px solid #1c232d;border-radius:8px;padding:8px;color:#8995a5;max-height:180px;overflow:auto;white-space:pre;line-height:1.5}@media(min-width:800px){main{max-width:1100px;margin:auto}.grid{grid-template-columns:repeat(4,1fr)}}
 </style>
 </head>
 <body>
 <header>
-<div class="title">Bybit HTF OrderFlow — V4.1 TOP-200</div>
-<div class="sub">State Machine → HTF → Wall → Sweep → Absorption → Bounce → Retest → 1M close → Entry</div>
-<div class="bar"><button id="startBtn" class="btn on">▶ Старт</button><button id="stopBtn" class="btn stop">■ Стоп</button><button id="clearBtn" class="btn">Очистить</button></div>
-<div class="mode"><button id="watchBtn" class="btn active">👁 Наблюдение</button><button id="entryBtn" class="btn">🎯 Вход</button></div>
+<div class="title">Bybit HTF OrderFlow — V5 (FSM + Journal)</div>
+<div class="sub">HTF → Level → Sweep → Reclaim → Retest → Flow → Entry | строгая последовательность</div>
+<div class="bar">
+  <button id="startBtn" class="btn on">▶ Старт</button>
+  <button id="stopBtn" class="btn stop">■ Стоп</button>
+  <button id="clearBtn" class="btn">Очистить</button>
+  <button id="exportBtn" class="btn small">⬇ CSV лог</button>
+  <button id="funnelBtn" class="btn small">↺ Сброс воронки</button>
+</div>
+<div class="mode engine">
+  <button id="engineV4" class="btn">V4 (старая)</button>
+  <button id="engineV5" class="btn active">V5 (FSM)</button>
+</div>
+<div class="mode">
+  <button id="watchBtn" class="btn active">👁 Наблюдение</button>
+  <button id="entryBtn" class="btn">🎯 Вход</button>
+</div>
 <div class="filters">
 <label>Минимум Confidence<select id="quality"><option value="78">78 — строго</option><option value="84" selected>84 — очень строго</option><option value="90">90 — только лучшие</option></select></label>
 <label>Окно потока<select id="flowWindow"><option value="10000">10 сек</option><option value="20000" selected>20 сек</option><option value="30000">30 сек</option></select></label>
 </div>
-<div id="stats" class="stats"></div><div id="status" class="status">Остановлен</div>
+<div id="stats" class="stats"></div>
+<div id="status" class="status">Остановлен</div>
 </header>
-<main><div class="section">Сигналы и наблюдение</div><div id="cards"><div class="empty">Нажми «Старт»</div></div><div class="section">Диагностика</div><div id="diag" class="diag">Нет данных</div></main>
+<main>
+  <div class="section">Воронка V5</div>
+  <div id="funnel" class="funnel"></div>
+  <div class="section">Сигналы и наблюдение</div>
+  <div id="cards"><div class="empty">Нажми «Старт»</div></div>
+  <div class="section">Журнал (последние события)</div>
+  <div id="logbox" class="logbox">—</div>
+  <div class="section">Диагностика</div>
+  <div id="diag" class="diag">Нет данных</div>
+</main>
 <script>
 'use strict';
 const API='https://api.bybit.com';
@@ -33,16 +56,40 @@ const CFG={
  SWEEP_LOOKBACK:90000,SWEEP_RECLAIM_MS:15000,VOL_SPIKE_MIN:1.5,VOL_LOOKBACK:20,ONE_MIN_CONFIRM:true,
  WS_SYMBOLS_PER_CONN:20,WS_MAX:10,HTF_BATCH:8,TOP_REFRESH:900000,ANALYSIS_BASE:350,ANALYSIS_MAX:1600,
  REST_MIN_GAP:80,REST_MAX_RETRIES:5,ICEBERG_MIN_RELOADS:2,ICEBERG_WINDOW:120000,ICEBERG_MIN_VOLUME:100000,
- STACK_LEVELS:3,STACK_DIST:.0005,STACK_MAX_DIST:.0018,STACK_MIN_USD:25000
+ STACK_LEVELS:3,STACK_DIST:.0005,STACK_MAX_DIST:.0018,STACK_MIN_USD:25000,
+ // V5 — TTL для состояний FSM (ms)
+ TTL:{
+   HTF_OK:600000,
+   LEVEL_TOUCHED:180000,
+   SWEPT:25000,
+   RECLAIMED:300000,
+   RETEST_PENDING:90000,
+   RETEST_HELD:60000,
+   FLOW_OK:45000
+ },
+ // V5 — пороги переходов
+ FLOW_DOM_MIN:5000,           // мин $ агрессивного потока в сторону
+ FLOW_DOM_RATIO:1.3,          // доминанта над противоположным
+ RVOL_MIN:1.5,                // RVOL при входе
+ MAX_SETUPS_PER_SYMBOL:4,
+ POSITION_TTL:4*3600000,      // макс. время слежения за исходом
+ LOG_MAX:500
 };
-/* News Lock: automatic calendar feeds are intentionally not hard-coded because public calendar endpoints
-   change frequently and may be blocked by CORS. Add UTC event timestamps here when desired:
-   {ts: Date.parse('2026-10-07T12:30:00Z'),name:'CPI'} . Lock is +/- NEWS_LOCK_MIN around each event. */
 const NEWS_LOCK_MIN=12;
 const NEWS_EVENTS=[];
+// ---- V5 state machine ------------------------------------------------
+const ST={IDLE:'IDLE',HTF_OK:'HTF_OK',LEVEL_TOUCHED:'LEVEL_TOUCHED',SWEPT:'SWEPT',RECLAIMED:'RECLAIMED',
+  RETEST_PENDING:'RETEST_PENDING',RETEST_HELD:'RETEST_HELD',FLOW_OK:'FLOW_OK',
+  FIRED:'FIRED',EXPIRED:'EXPIRED',INVALIDATED:'INVALIDATED'};
+const STATE_RANK={IDLE:0,HTF_OK:1,LEVEL_TOUCHED:2,SWEPT:3,RECLAIMED:4,RETEST_PENDING:5,RETEST_HELD:6,FLOW_OK:7,FIRED:8,EXPIRED:9,INVALIDATED:9};
+let ENGINE='V5';
 let running=false,mode='watch',wsList=[],reconnectTimer=null,pingTimer=null,scanTimer=null,renderTimer=null,topRefreshTimer=null;
 let restBusy=false,lastRestAt=0;
 const coins=new Map(),books=new Map(),trades=new Map(),zones=new Map(),states=new Map(),signals=new Map(),metrics=new Map();
+const setups=new Map();       // key -> setup
+const openPositions=[];       // fired, tracked for outcome
+const setupLog=[];            // closed setups
+const funnel={created:0,htf_ok:0,level_touched:0,swept:0,reclaimed:0,retest_pending:0,retest_held:0,flow_ok:0,fired:0,expired:0,invalidated:0,veto:{wall:0,rvol:0,rr:0,news:0,break:0}};
 const priority={high:new Set(),mid:new Set(),low:new Set()};
 const $=id=>document.getElementById(id),now=()=>Date.now(),num=x=>Number(x)||0,clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 const fmt=n=>{n=num(n);if(!n)return '$0';const a=Math.abs(n);if(a>=1e6)return '$'+(n/1e6).toFixed(2)+'M';if(a>=1e3)return '$'+(n/1e3).toFixed(1)+'K';if(a>=1)return '$'+n.toFixed(0);return '$'+n.toFixed(2)};
@@ -86,26 +133,473 @@ function icebergDetector(s,wall){const b=books.get(s);if(!b?.wallSnapshots?.leng
 function stackedLiquidity(s,zone,side,price){const b=books.get(s);if(!b?.valid)return{score:0,count:0,volume:0};const map=side==='LONG'?b.bids:b.asks,levels=[];for(const [p,q] of map){const dist=Math.abs(p-zone.p)/zone.p;if(dist<=CFG.STACK_MAX_DIST&&((side==='LONG'&&p<=price*1.001)||(side==='SHORT'&&p>=price*.999))){const usd=p*q;if(usd>=CFG.STACK_MIN_USD)levels.push({p,usd})}}levels.sort((a,b)=>a.p-b.p);let best=0,total=0;if(levels.length>=CFG.STACK_LEVELS){for(let i=0;i<=levels.length-CFG.STACK_LEVELS;i++){const g=levels.slice(i,i+CFG.STACK_LEVELS),span=Math.abs(g.at(-1).p-g[0].p)/zone.p;if(span<=CFG.STACK_MAX_DIST)best=Math.max(best,g.length);if(best===g.length)total=Math.max(total,g.reduce((z,x)=>z+x.usd,0))}}return{score:best>=3?Math.min(20,10+(best-3)*5):0,count:best,volume:total}}
 function marketRegime(s){const m=metrics.get(s)||{},a=m.atr1||0,c=coins.get(s);if(!c||!a)return{type:'UNKNOWN',stopMult:1,adx:0,slope:0};const a15=m.atr15||a,ratio=a15? a/a15:1;let type=ratio>2?'VOLATILE':'RANGE';return{type,stopMult:type==='VOLATILE'?1.25:1,adx:0,slope:0}}
 function newsLock(){const t=now();for(const e of NEWS_EVENTS){if(Math.abs(t-e.ts)<=NEWS_LOCK_MIN*60000)return e}return null}
-function stateFor(s){if(!states.has(s))states.set(s,{stage:'WAIT_WALL',side:null,zone:null,wall:null,candidate:false,confidence:0,updated:0,priority:'low',lastEval:0,firstTouch:0,bounce:0,retest:0,features:null});return states.get(s)}
-function priorityScore(s){const st=stateFor(s),b=books.get(s),c=coins.get(s);if(!c||!b?.valid)return 0;let p=0;if(now()-b.last<1500)p+=20;if(st.wall)p+=35;if(st.candidate)p+=40;const zs=zones.get(s)||[],price=c.price;if(zs.some(z=>Math.abs(price-z.p)/price<CFG.MAX_WALL_DIST))p+=25;const m=metrics.get(s);if(m?.htfAt&&now()-m.htfAt<CFG.TOP_REFRESH)p+=5;return p}
+function stateFor(s){if(!states.has(s))states.set(s,{stage:ST.IDLE,side:null,zone:null,wall:null,candidate:false,confidence:0,updated:0,priority:'low',lastEval:0,firstTouch:0,bounce:0,retest:0,features:null,setup:null});return states.get(s)}
+function priorityScore(s){const st=stateFor(s),b=books.get(s),c=coins.get(s);if(!c||!b?.valid)return 0;let p=0;if(now()-b.last<1500)p+=20;if(st.wall)p+=35;if(st.candidate)p+=40;if(st.setup&&STATE_RANK[st.setup.state]>=STATE_RANK[ST.SWEPT])p+=30;const zs=zones.get(s)||[],price=c.price;if(zs.some(z=>Math.abs(price-z.p)/price<CFG.MAX_WALL_DIST))p+=25;const m=metrics.get(s);if(m?.htfAt&&now()-m.htfAt<CFG.TOP_REFRESH)p+=5;return p}
 function rebuildPriority(){priority.high.clear();priority.mid.clear();priority.low.clear();for(const s of coins.keys()){const p=priorityScore(s);if(p>=55)priority.high.add(s);else if(p>=25)priority.mid.add(s);else priority.low.add(s)}}
 function nextQueue(){const h=[...priority.high],m=[...priority.mid],l=[...priority.low];return[...h,...m,...l]}
-function evaluate(s){const st=stateFor(s),c=coins.get(s),zs=zones.get(s)||[],b=books.get(s);st.candidate=false;st.wall=null;st.confidence=0;if(!c||!b?.valid||now()-b.last>CFG.BOOK_STALE){st.stage='WAIT_WALL';return}const locked=newsLock();if(locked){st.stage='NEWS_LOCK';st.features={news:locked.name};return}const price=c.price;let best=null;for(const z of zs){const dist=Math.abs(price-z.p)/price;if(dist>CFG.MAX_WALL_DIST)continue;const has4H=z.tfs.has('4H'),has1H=z.tfs.has('1H'),has15M=z.tfs.has('15M');if(mode==='entry'&&(!has4H||!has1H||!has15M))continue;if(mode==='watch'&&z.tfs.size<2)continue;const atr1=metrics.get(s)?.atr1||price*.002;for(const side of ['LONG','SHORT']){const directional=side==='LONG'?z.long>=z.short*1.5:z.short>=z.long*1.5;if(!directional)continue;const wall=bestWall(s,z,side,price);if(!wall)continue;if(wall.age<CFG.WALL_MIN_AGE){st.stage='WAIT_WALL';continue}if(wall.retained<CFG.WALL_RETENTION){st.stage='WAIT_WALL';continue}if(wall.ratio<CFG.WALL_RATIO){st.stage='WAIT_WALL';continue}st.wall=wall;st.zone=z;const f=flowStats(s,price,Number($('flowWindow').value)),opp=side==='LONG'?f.sell:f.buy,flowRatio=wall.usd?opp/wall.usd:0;if(flowRatio<CFG.ABSORB_RATIO){st.stage='WALL_CONFIRMED';continue}const sweep=detectSweep(s,z,side,atr1);const ret=detectRetest(s,z,side,atr1);const react=reaction(s,side);const spike=volumeSpike(s);const ice=icebergDetector(s,wall);const stack=stackedLiquidity(s,z,side,price);if(st.stage==='WAIT_WALL')st.stage='WALL_CONFIRMED';if(ret.firstTouch&&!ret.bounce)st.stage='FIRST_TOUCH';else if(ret.bounce&&!ret.retest)st.stage='BOUNCE';else if(ret.retest)st.stage='RETEST';const candle=oneMinuteCandle(s);const closeOK=!CFG.ONE_MIN_CONFIRM||!!candle;const stopBase=side==='LONG'?z.lo-atr1*.12:z.hi+atr1*.12;const regime=marketRegime(s);const stop=side==='LONG'?stopBase-(regime.stopMult-1)*atr1*.15:stopBase+(regime.stopMult-1)*atr1*.15,risk=Math.abs(price-stop);const target=side==='LONG'?price+Math.max(risk*2.2,atr1*.8):price-Math.max(risk*2.2,atr1*.8),rr=Math.abs(target-price)/Math.max(risk,1e-12);if(rr<CFG.MIN_RR)continue;if(side==='LONG'&&price<z.lo)continue;if(side==='SHORT'&&price>z.hi)continue;const maxChase=atr1*.55;if(side==='LONG'&&price>z.hi+maxChase)continue;if(side==='SHORT'&&price<z.lo-maxChase)continue;
+
+/* =================== V4 ENGINE (старая логика) =================== */
+function evaluateV4(s){const st=stateFor(s),c=coins.get(s),zs=zones.get(s)||[],b=books.get(s);st.candidate=false;st.wall=null;st.confidence=0;if(!c||!b?.valid||now()-b.last>CFG.BOOK_STALE){st.stage='WAIT_WALL';return}const locked=newsLock();if(locked){st.stage='NEWS_LOCK';st.features={news:locked.name};return}const price=c.price;let best=null;for(const z of zs){const dist=Math.abs(price-z.p)/price;if(dist>CFG.MAX_WALL_DIST)continue;const has4H=z.tfs.has('4H'),has1H=z.tfs.has('1H'),has15M=z.tfs.has('15M');if(mode==='entry'&&(!has4H||!has1H||!has15M))continue;if(mode==='watch'&&z.tfs.size<2)continue;const atr1=metrics.get(s)?.atr1||price*.002;for(const side of ['LONG','SHORT']){const directional=side==='LONG'?z.long>=z.short*1.5:z.short>=z.long*1.5;if(!directional)continue;const wall=bestWall(s,z,side,price);if(!wall)continue;if(wall.age<CFG.WALL_MIN_AGE){st.stage='WAIT_WALL';continue}if(wall.retained<CFG.WALL_RETENTION){st.stage='WAIT_WALL';continue}if(wall.ratio<CFG.WALL_RATIO){st.stage='WAIT_WALL';continue}st.wall=wall;st.zone=z;const f=flowStats(s,price,Number($('flowWindow').value)),opp=side==='LONG'?f.sell:f.buy,flowRatio=wall.usd?opp/wall.usd:0;if(flowRatio<CFG.ABSORB_RATIO){st.stage='WALL_CONFIRMED';continue}const sweep=detectSweep(s,z,side,atr1);const ret=detectRetest(s,z,side,atr1);const react=reaction(s,side);const spike=volumeSpike(s);const ice=icebergDetector(s,wall);const stack=stackedLiquidity(s,z,side,price);if(st.stage==='WAIT_WALL')st.stage='WALL_CONFIRMED';if(ret.firstTouch&&!ret.bounce)st.stage='FIRST_TOUCH';else if(ret.bounce&&!ret.retest)st.stage='BOUNCE';else if(ret.retest)st.stage='RETEST';const candle=oneMinuteCandle(s);const closeOK=!CFG.ONE_MIN_CONFIRM||!!candle;const stopBase=side==='LONG'?z.lo-atr1*.12:z.hi+atr1*.12;const regime=marketRegime(s);const stop=side==='LONG'?stopBase-(regime.stopMult-1)*atr1*.15:stopBase+(regime.stopMult-1)*atr1*.15,risk=Math.abs(price-stop);const target=side==='LONG'?price+Math.max(risk*2.2,atr1*.8):price-Math.max(risk*2.2,atr1*.8),rr=Math.abs(target-price)/Math.max(risk,1e-12);if(rr<CFG.MIN_RR)continue;if(side==='LONG'&&price<z.lo)continue;if(side==='SHORT'&&price>z.hi)continue;const maxChase=atr1*.55;if(side==='LONG'&&price>z.hi+maxChase)continue;if(side==='SHORT'&&price<z.lo-maxChase)continue;
 const htf=Math.min(20,Math.round(z.score*.22));const wallPts=wall.age>=30000?5:4;const sweepPts=sweep.score;const flowPts=clamp(Math.round((flowRatio-CFG.ABSORB_RATIO)/.75*15),0,15);const reactPts=clamp(Math.round(react.score/35*10),0,10);const volPts=spike.score;const icePts=ice.score;let conf=htf+icePts+sweepPts+flowPts+reactPts+volPts+wallPts;if(stack.score)conf=Math.min(100,conf+stack.score);conf=Math.min(100,conf);const minConfidence=Number($('quality').value)||84;const ready=ret.retest&&sweep.reclaimed&&closeOK&&conf>=minConfidence;if(ready){st.stage='ENTRY_READY';st.candidate=true;st.updated=now();const x={side,zone:z,wall,flow:f,opp,react,price,entry:price,stop,target,rr,flowRatio,abs:flowRatio*100,confidence:conf,ice,sweep,ret,spike,stack,regime,candle,htf};if(!best||x.confidence>best.confidence)best=x}else if(ret.retest)st.stage='RETEST';if(ret.retest)st.retest=ret.retestTs;if(ret.bounce)st.bounce=ret.bounceTs;if(ret.firstTouch)st.firstTouch=ret.touchTs}}
 if(!best){if(st.stage==='ENTRY_READY')st.stage='RETEST';return}st.side=best.side;st.zone=best.zone;st.wall=best.wall;st.confidence=best.confidence;st.candidate=true;st.priority='high';createSignal(s,best)}
 function createSignal(s,x){const old=signals.get(s);if(old&&old.expires>now())return;if(old&&now()-old.ts<CFG.COOLDOWN)return;signals.set(s,{symbol:s,side:x.side,price:x.price,entry:x.entry,stop:x.stop,target:x.target,rr:x.rr,ts:now(),expires:now()+CFG.ENTRY_TTL,zone:x.zone,flow:x.flow,abs:x.abs,react:x.react,confidence:x.confidence,ice:x.ice,sweep:x.sweep,ret:x.ret,spike:x.spike,stack:x.stack,regime:x.regime})}
-function scanPriority(){if(!running)return;rebuildPriority();const q=nextQueue(),t=now();let budget=0;for(const s of q){const st=stateFor(s),age=t-st.lastEval,interval=priority.high.has(s)?CFG.ANALYSIS_BASE:priority.mid.has(s)?700:CFG.ANALYSIS_MAX;if(age>=interval){evaluate(s);st.lastEval=t;budget++;if(budget>=45)break}}}
-function stages(x){const flowOpp=x.side==='LONG'?x.flow?.sell||0:x.flow?.buy||0;return '<div class="stages"><span class="stage ok">4H ✓</span><span class="stage '+(x.zone?.tfs?.has('1H')?'ok':'warn')+'">1H '+(x.zone?.tfs?.has('1H')?'✓':'наблюдение')+'</span><span class="stage '+(x.zone?.tfs?.has('15M')?'ok':'warn')+'">15M '+(x.zone?.tfs?.has('15M')?'✓':'уточнение')+'</span><span class="stage ok">Wall 15s ✓</span><span class="stage '+(x.ret?.retest?'ok':'warn')+'">Retest '+(x.ret?.retest?'✓':'—')+'</span><span class="stage '+(x.sweep?.reclaimed?'ok':'warn')+'">Sweep '+(x.sweep?.reclaimed?'✓':'—')+'</span><span class="stage '+(x.ice?.hit?'ok':'warn')+'">Iceberg '+(x.ice?.hit?'✓':'—')+'</span><span class="stage '+((x.spike?.ratio||0)>=2?'ok':'warn')+'">RVOL '+(x.spike?.ratio||0).toFixed(1)+'x</span><span class="stage '+(flowOpp>0?'ok':'warn')+'">Поток '+fmt(flowOpp)+'</span><span class="stage '+((x.abs||0)>=10?'ok':'warn')+'">Абсорбция '+((x.abs||0).toFixed(0))+'%</span><span class="stage '+((x.stack?.count||0)>=3?'ok':'warn')+'">Stack '+((x.stack?.count||0)>=3?'✓':'—')+'</span></div>'}
+
+/* =================== V5 ENGINE (FSM) =================== */
+function setupKey(sym,side,zoneP){const b=Math.round(Math.log(Math.max(zoneP,1e-9))/Math.log(1.002));return sym+'|'+side+'|'+b}
+function transitionsSince(sym,ts){const a=trades.get(sym)||[];if(!a.length)return[];let lo=0,hi=a.length;while(lo<hi){const m=(lo+hi)>>1;if(a[m].ts<ts)lo=m+1;else hi=m}return a.slice(lo)}
+function transition(s,toState,note){s.transitions.push({state:toState,ts:now(),price:coins.get(s.sym)?.price||null,note:note||''});s.state=toState;s.stateEnteredAt=now();s.updatedAt=now();
+  if(toState===ST.HTF_OK)funnel.htf_ok++;
+  else if(toState===ST.LEVEL_TOUCHED)funnel.level_touched++;
+  else if(toState===ST.SWEPT)funnel.swept++;
+  else if(toState===ST.RECLAIMED)funnel.reclaimed++;
+  else if(toState===ST.RETEST_PENDING)funnel.retest_pending++;
+  else if(toState===ST.RETEST_HELD)funnel.retest_held++;
+  else if(toState===ST.FLOW_OK)funnel.flow_ok++;
+  else if(toState===ST.FIRED)funnel.fired++;
+  else if(toState===ST.EXPIRED)funnel.expired++;
+  else if(toState===ST.INVALIDATED)funnel.invalidated++;
+}
+function createSetup(sym,side,zone,price,atr1){
+  const key=setupKey(sym,side,zone.p);
+  const s={id:key+'@'+now(),key,sym,side,zoneP:zone.p,zoneLo:zone.lo,zoneHi:zone.hi,zone,
+    state:ST.IDLE,stateEnteredAt:now(),createdAt:now(),updatedAt:now(),
+    transitions:[],atr1,
+    sweepExtreme:null,sweepTs:null,reclaimTs:null,touchTs:null,
+    bounceExtreme:null,bounceTs:null,retestTs:null,flowTs:null,
+    entryPrice:null,entryTs:null,stop:null,target:null,rr:null,confidence:0,
+    context:{},veto:null,flowSnapshot:null,
+    result:null,exitTs:null,exitPrice:null,mfe:null,mae:null};
+  setups.set(key,s);
+  funnel.created++;
+  // HTF_OK устанавливается сразу — сетап создан по условию HTF + близости цены
+  transition(s,ST.HTF_OK,'created | htf '+(zone.tfs?[...zone.tfs].join(','):''));
+  return s;
+}
+function discoverSetups(sym,price,atr1){
+  const zs=zones.get(sym)||[];
+  const out=[];
+  let createdCount=0;
+  for(const z of zs){
+    const dist=Math.abs(price-z.p)/price;
+    if(dist>CFG.MAX_WALL_DIST)continue;
+    const has4H=z.tfs.has('4H'),has1H=z.tfs.has('1H');
+    if(mode==='entry'&&(!has4H||!has1H))continue;
+    if(mode==='watch'&&z.tfs.size<2)continue;
+    for(const side of ['LONG','SHORT']){
+      const directional=side==='LONG'?z.long>=z.short*1.5:z.short>=z.long*1.5;
+      if(!directional)continue;
+      const key=setupKey(sym,side,z.p);
+      let s=setups.get(key);
+      if(s&&[ST.FIRED,ST.EXPIRED,ST.INVALIDATED].includes(s.state)){
+        // переиспользуем ключ только если старая запись старше cooldown
+        if(now()-s.stateEnteredAt<CFG.COOLDOWN)continue;
+        s=null;
+      }
+      if(!s){
+        if(createdCount>=CFG.MAX_SETUPS_PER_SYMBOL)break;
+        s=createSetup(sym,side,z,price,atr1);
+        createdCount++;
+      }
+      s.zone=z;s.atr1=atr1;
+      out.push(s);
+    }
+  }
+  return out;
+}
+function advanceSetup(s,ctx){
+  const{price,atr1}=ctx;
+  const state=s.state;
+  s.updatedAt=now();
+  // TTL
+  const ttl=CFG.TTL[state];
+  if(ttl&&now()-s.stateEnteredAt>ttl){
+    s.veto='ttl:'+state;
+    transition(s,ST.EXPIRED,'ttl exceeded');
+    logSetup(s);
+    return;
+  }
+  const tol=Math.max(atr1*0.20,s.zoneP*0.00035);
+
+  if(state===ST.HTF_OK){
+    // ждём приближения цены к уровню
+    if(Math.abs(price-s.zoneP)<=tol){
+      s.touchTs=now();
+      transition(s,ST.LEVEL_TOUCHED,'price within tol ('+tol.toFixed(6)+')');
+    } else if((s.side==='LONG'&&price>s.zoneP+tol*3)||(s.side==='SHORT'&&price<s.zoneP-tol*3)){
+      // цена ушла без касания — сетап протух
+      s.veto='no-touch';
+      transition(s,ST.EXPIRED,'price ran away without touch');
+      logSetup(s);
+    }
+    return;
+  }
+
+  if(state===ST.LEVEL_TOUCHED){
+    // ищем sweep в истории трейдов с момента касания
+    const hist=transitionsSince(s.sym,s.stateEnteredAt);
+    let swept=false,extreme=null,extremeTs=null;
+    for(const t of hist){
+      if(s.side==='LONG'&&t.p<s.zoneP-tol){swept=true;if(extreme===null||t.p<extreme){extreme=t.p;extremeTs=t.ts}}
+      if(s.side==='SHORT'&&t.p>s.zoneP+tol){swept=true;if(extreme===null||t.p>extreme){extreme=t.p;extremeTs=t.ts}}
+    }
+    // также проверим текущую цену
+    if(s.side==='LONG'&&price<s.zoneP-tol){swept=true;if(extreme===null||price<extreme){extreme=price;extremeTs=now()}}
+    if(s.side==='SHORT'&&price>s.zoneP+tol){swept=true;if(extreme===null||price>extreme){extreme=price;extremeTs=now()}}
+    if(swept){
+      s.sweepExtreme=extreme;s.sweepTs=extremeTs||now();
+      transition(s,ST.SWEPT,'sweep extreme '+extreme.toFixed(8));
+      // сразу попробуем RECLAIM на том же тике
+      advanceSetup(s,ctx);
+    } else if((s.side==='LONG'&&price>s.zoneP+atr1*0.5)||(s.side==='SHORT'&&price<s.zoneP-atr1*0.5)){
+      s.veto='no-sweep';
+      funnel.veto.break++;
+      transition(s,ST.INVALIDATED,'ran away without sweep');
+      logSetup(s);
+    }
+    return;
+  }
+
+  if(state===ST.SWEPT){
+    // ищем reclaim: цена вернулась на правильную сторону уровня после sweep
+    const hist=transitionsSince(s.sym,s.stateEnteredAt);
+    let reclaimed=false,reclaimTs=null;
+    for(const t of hist){
+      if(s.side==='LONG'&&t.p>=s.zoneP){reclaimed=true;reclaimTs=t.ts;break}
+      if(s.side==='SHORT'&&t.p<=s.zoneP){reclaimed=true;reclaimTs=t.ts;break}
+    }
+    if(!reclaimed){
+      if(s.side==='LONG'&&price>=s.zoneP){reclaimed=true;reclaimTs=now()}
+      if(s.side==='SHORT'&&price<=s.zoneP){reclaimed=true;reclaimTs=now()}
+    }
+    if(reclaimed){
+      // проверяем, что reclaim уложился в окно
+      if(now()-s.sweepTs<=CFG.SWEEP_RECLAIM_MS*2){
+        s.reclaimTs=reclaimTs;
+        transition(s,ST.RECLAIMED,'reclaimed @ '+reclaimTs);
+        advanceSetup(s,ctx);
+      } else {
+        s.veto='reclaim-too-slow';
+        transition(s,ST.INVALIDATED,'reclaim took too long');
+        logSetup(s);
+      }
+    }
+    return;
+  }
+
+  if(state===ST.RECLAIMED){
+    // ищем bounce: цена отошла от зоны минимум на BOUNCE_MIN_ATR * atr1
+    const move=s.side==='LONG'?price-s.zoneP:s.zoneP-price;
+    if(move>=atr1*CFG.BOUNCE_MIN_ATR){
+      s.bounceExtreme=price;s.bounceTs=now();
+      transition(s,ST.RETEST_PENDING,'bounce '+(move/atr1).toFixed(2)+' ATR');
+      advanceSetup(s,ctx);
+      return;
+    }
+    // если цена пробила экстремум sweep — сетап мёртв
+    if(s.side==='LONG'&&price<s.sweepExtreme){
+      s.veto='broke-sweep-low';
+      funnel.veto.break++;
+      transition(s,ST.INVALIDATED,'sweep low broken');
+      logSetup(s);
+    } else if(s.side==='SHORT'&&price>s.sweepExtreme){
+      s.veto='broke-sweep-high';
+      funnel.veto.break++;
+      transition(s,ST.INVALIDATED,'sweep high broken');
+      logSetup(s);
+    }
+    return;
+  }
+
+  if(state===ST.RETEST_PENDING){
+    // если цена пробила экстремум sweep — мёртв
+    if(s.side==='LONG'&&price<s.sweepExtreme){
+      s.veto='broke-sweep-low-at-retest';
+      funnel.veto.break++;
+      transition(s,ST.INVALIDATED,'sweep low broken during retest');
+      logSetup(s);
+      return;
+    }
+    if(s.side==='SHORT'&&price>s.sweepExtreme){
+      s.veto='broke-sweep-high-at-retest';
+      funnel.veto.break++;
+      transition(s,ST.INVALIDATED,'sweep high broken during retest');
+      logSetup(s);
+      return;
+    }
+    // ищем возврат к зоне
+    if(Math.abs(price-s.zoneP)<=tol){
+      s.retestTs=now();
+      transition(s,ST.RETEST_HELD,'retest held @ '+price.toFixed(8));
+      advanceSetup(s,ctx);
+    }
+    return;
+  }
+
+  if(state===ST.RETEST_HELD){
+    // ищем агрессивный поток в сторону
+    const f=flowStats(s.sym,price,Number($('flowWindow').value));
+    const dom=s.side==='LONG'?f.buy:f.sell;
+    const opp=s.side==='LONG'?f.sell:f.buy;
+    const wallUsd=s.wall?.usd||10000;
+    const flowMin=Math.max(CFG.FLOW_DOM_MIN,wallUsd*0.15);
+    if(dom>=flowMin&&dom>opp*CFG.FLOW_DOM_RATIO){
+      s.flowTs=now();s.flowSnapshot=f;
+      transition(s,ST.FLOW_OK,'dom flow '+fmt(dom)+' vs opp '+fmt(opp));
+      advanceSetup(s,ctx);
+    }
+    return;
+  }
+
+  if(state===ST.FLOW_OK){
+    // финальный контекст-чек + вход
+    const news=newsLock();
+    if(news){
+      s.veto='news:'+(news.name||'event');
+      funnel.veto.news++;
+      transition(s,ST.INVALIDATED,'news lock');
+      logSetup(s);return;
+    }
+    const wall=bestWall(s.sym,s.zone,s.side,price);
+    s.wall=wall;
+    if(!wall||wall.age<CFG.WALL_MIN_AGE||wall.retained<CFG.WALL_RETENTION||wall.ratio<CFG.WALL_RATIO){
+      s.veto='wall';
+      funnel.veto.wall++;
+      transition(s,ST.INVALIDATED,'wall invalid at entry');
+      logSetup(s);return;
+    }
+    const spike=volumeSpike(s.sym);
+    if(spike.ratio<CFG.RVOL_MIN){
+      s.veto='rvol:'+spike.ratio.toFixed(2);
+      funnel.veto.rvol++;
+      transition(s,ST.INVALIDATED,'rvol '+spike.ratio.toFixed(2)+' < '+CFG.RVOL_MIN);
+      logSetup(s);return;
+    }
+    const regime=marketRegime(s.sym);
+    // SL — за реальный экстремум sweep
+    const stopBase=s.side==='LONG'?s.sweepExtreme-atr1*0.12:s.sweepExtreme+atr1*0.12;
+    const stop=s.side==='LONG'?stopBase-(regime.stopMult-1)*atr1*0.15:stopBase+(regime.stopMult-1)*atr1*0.15;
+    const risk=Math.abs(price-stop);
+    if(risk<1e-12||risk/price>0.05){
+      s.veto='stop-too-wide';
+      transition(s,ST.INVALIDATED,'risk out of range');
+      logSetup(s);return;
+    }
+    // TP — ближайшая значимая ликвидность в направлении; fallback на RR
+    const nextLiq=nextLiquidityTarget(s.sym,s.side,price,atr1);
+    let target=s.side==='LONG'?price+Math.max(risk*2.2,atr1*0.8):price-Math.max(risk*2.2,atr1*0.8);
+    if(nextLiq){
+      const distRR=Math.abs(nextLiq-price)/risk;
+      if(distRR>=CFG.MIN_RR)target=nextLiq;
+    }
+    const rr=Math.abs(target-price)/risk;
+    if(rr<CFG.MIN_RR){
+      s.veto='rr:'+rr.toFixed(2);
+      funnel.veto.rr++;
+      transition(s,ST.INVALIDATED,'rr '+rr.toFixed(2));
+      logSetup(s);return;
+    }
+    // Confidence
+    const htfPts=Math.min(20,Math.round(s.zone.score*0.22));
+    const wallPts=5;
+    const sweepPts=15;
+    const retestPts=20;
+    const flowPts=clamp(Math.round((Math.max(funnel.flow_ok,1))*0+10),0,15);
+    const rvolPts=clamp(Math.round((spike.ratio-CFG.RVOL_MIN)*6),0,18);
+    let conf=htfPts+wallPts+sweepPts+retestPts+flowPts+rvolPts;
+    conf=Math.min(100,conf);
+    const minConfidence=Number($('quality').value)||84;
+    if(conf<minConfidence){
+      s.veto='conf:'+conf+'<'+minConfidence;
+      transition(s,ST.INVALIDATED,'confidence below threshold');
+      logSetup(s);return;
+    }
+    // FIRED
+    s.entryPrice=price;s.entryTs=now();s.stop=stop;s.target=target;s.rr=rr;s.confidence=conf;
+    s.context={
+      htf:{has4H:s.zone.tfs.has('4H'),has1H:s.zone.tfs.has('1H'),has15M:s.zone.tfs.has('15M'),score:Math.round(s.zone.score)},
+      wall:{usd:Math.round(wall.usd),ageMs:wall.age,retention:+wall.retained.toFixed(3),ratio:+wall.ratio.toFixed(2)},
+      rvol:+spike.ratio.toFixed(2),
+      flow:{buy:Math.round(s.flowSnapshot?.buy||0),sell:Math.round(s.flowSnapshot?.sell||0)},
+      regime:regime.type,
+      sweepExtreme:s.sweepExtreme,
+      nextLiq:nextLiq||null
+    };
+    transition(s,ST.FIRED,'entry '+price.toFixed(8)+' sl '+stop.toFixed(8)+' tp '+target.toFixed(8)+' rr '+rr.toFixed(2));
+    // Создаём сигнал-карточку
+    pushSignalFromSetup(s,spike,regime);
+    // Кладём в трекинг исхода
+    openPositions.push(s);
+    // Лог сразу (перезапишем при закрытии)
+    logSetup(s);
+  }
+}
+function nextLiquidityTarget(sym,side,price,atr1){
+  const zs=zones.get(sym)||[];
+  const minGap=atr1*0.5;
+  const candidates=zs.filter(z=>side==='LONG'?z.p>price+minGap:z.p<price-minGap);
+  if(!candidates.length)return null;
+  candidates.sort((a,b)=>Math.abs(a.p-price)-Math.abs(b.p-price));
+  const significant=candidates.find(z=>z.score>=CFG.MIN_ZONE_SCORE);
+  return significant?significant.p:null;
+}
+function pushSignalFromSetup(s,spike,regime){
+  const old=signals.get(s.sym);
+  if(old&&old.expires>now())return;
+  if(old&&now()-old.ts<CFG.COOLDOWN)return;
+  signals.set(s.sym,{
+    symbol:s.sym,side:s.side,
+    price:s.entryPrice,entry:s.entryPrice,stop:s.stop,target:s.target,rr:s.rr,
+    ts:s.entryTs,expires:s.entryTs+CFG.ENTRY_TTL,
+    zone:s.zone,flow:s.flowSnapshot,abs:0,
+    react:null,confidence:s.confidence,
+    ice:null,
+    sweep:{hit:true,reclaimed:true,extreme:s.sweepExtreme},
+    ret:{retest:true,retestTs:s.retestTs},
+    spike:{ratio:spike.ratio},
+    stack:null,regime:regime.type,
+    setupId:s.id,transitions:s.transitions.slice()
+  });
+}
+function trackPositions(){
+  const t=now();
+  for(let i=openPositions.length-1;i>=0;i--){
+    const p=openPositions[i];
+    const c=coins.get(p.sym);if(!c)continue;
+    const price=c.price;
+    if(p.side==='LONG'){
+      p.mfe=Math.max(p.mfe??price,price);
+      p.mae=Math.min(p.mae??price,price);
+    } else {
+      p.mfe=Math.min(p.mfe??price,price);
+      p.mae=Math.max(p.mae??price,price);
+    }
+    let hit=null;
+    if(p.side==='LONG'){
+      if(price>=p.target)hit='TP';
+      else if(price<=p.stop)hit='SL';
+    } else {
+      if(price<=p.target)hit='TP';
+      else if(price>=p.stop)hit='SL';
+    }
+    if(!hit&&t-p.entryTs>CFG.POSITION_TTL)hit='EXPIRED';
+    if(hit){
+      p.result=hit;p.exitTs=t;p.exitPrice=price;
+      logSetup(p);
+      openPositions.splice(i,1);
+    }
+  }
+}
+function logSetup(s){
+  // обновляем или добавляем запись по id
+  const idx=setupLog.findIndex(x=>x.id===s.id);
+  const rec={
+    id:s.id,sym:s.sym,side:s.side,createdAt:s.createdAt,entryTs:s.entryTs,
+    entryPrice:s.entryPrice,stop:s.stop,target:s.target,rr:s.rr,
+    result:s.result,exitTs:s.exitTs,exitPrice:s.exitPrice,mfe:s.mfe,mae:s.mae,
+    confidence:s.confidence,
+    htf4:s.zone?.tfs?.has('4H')?1:0,htf1:s.zone?.tfs?.has('1H')?1:0,htf15:s.zone?.tfs?.has('15M')?1:0,
+    wall:s.context?.wall||null,rvol:s.context?.rvol||null,regime:s.context?.regime||null,
+    veto:s.veto,state:s.state,
+    transitions:s.transitions.map(t=>t.state).join('>')
+  };
+  if(idx>=0)setupLog[idx]=rec;else setupLog.push(rec);
+  if(setupLog.length>CFG.LOG_MAX)setupLog.splice(0,setupLog.length-CFG.LOG_MAX);
+  renderLog();
+}
+function renderLog(){
+  const recent=setupLog.slice(-12).reverse();
+  if(!recent.length){$('logbox').textContent='—';return}
+  $('logbox').textContent=recent.map(r=>{
+    const res=r.result?' → '+r.result:' → '+r.state;
+    const veto=r.veto?' | veto '+r.veto:'';
+    return r.sym.padEnd(12)+' '+r.side.padEnd(5)+' ['+r.transitions+']'+res+veto;
+  }).join('\n');
+}
+function renderFunnel(){
+  const f=funnel;
+  const cells=[
+    ['created',f.created],['HTF_OK',f.htf_ok],['TOUCH',f.level_touched],['SWEPT',f.swept],
+    ['RECLAIM',f.reclaimed],['RETEST_P',f.retest_pending],['RETEST_H',f.retest_held],
+    ['FLOW_OK',f.flow_ok],['FIRED',f.fired],['EXPIRED',f.expired],
+    ['INVALID',f.invalidated],['veto wall',f.veto.wall],['veto rvol',f.veto.rvol],
+    ['veto rr',f.veto.rr],['veto break',f.veto.break]
+  ];
+  $('funnel').innerHTML=cells.map(([k,v])=>'<div class="fn"><b>'+v+'</b><span>'+k+'</span></div>').join('');
+}
+function exportCSV(){
+  const head=['id','sym','side','createdAt','entryTs','entryPrice','stop','target','rr','result','exitTs','exitPrice','mfe','mae','confidence','htf4','htf1','htf15','wall_usd','wall_retention','wall_ratio','rvol','regime','veto','state','transitions'];
+  const rows=[head];
+  for(const r of setupLog){
+    rows.push([
+      r.id,r.sym,r.side,r.createdAt||'',r.entryTs||'',
+      r.entryPrice||'',r.stop||'',r.target||'',r.rr||'',
+      r.result||'',r.exitTs||'',r.exitPrice||'',r.mfe||'',r.mae||'',
+      r.confidence||'',r.htf4,r.htf1,r.htf15,
+      r.wall?.usd||'',r.wall?.retention||'',r.wall?.ratio||'',
+      r.rvol||'',r.regime||'',r.veto||'',r.state||'',r.transitions||''
+    ]);
+  }
+  const csv=rows.map(r=>r.map(v=>{
+    const s=String(v==null?'':v);
+    return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;
+  }).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='orderflow_v5_'+new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')+'.csv';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+
+/* =================== EVALUATE dispatcher =================== */
+function evaluateV5(s){
+  const st=stateFor(s),c=coins.get(s),b=books.get(s);
+  st.candidate=false;st.wall=null;st.confidence=0;st.setup=null;
+  if(!c||!b?.valid||now()-b.last>CFG.BOOK_STALE){st.stage=ST.IDLE;return}
+  const price=c.price;
+  const atr1=metrics.get(s)?.atr1||price*0.002;
+  const ctx={price,atr1};
+  discoverSetups(s,price,atr1);
+  // прогоняем все активные сетапы этого символа
+  for(const s2 of setups.values()){
+    if(s2.sym!==s)continue;
+    if([ST.FIRED,ST.EXPIRED,ST.INVALIDATED].includes(s2.state))continue;
+    advanceSetup(s2,ctx);
+  }
+  // для UI — берём самый продвинутый активный сетап
+  let bestState=ST.IDLE,bestConf=0,bestSetup=null;
+  for(const s2 of setups.values()){
+    if(s2.sym!==s)continue;
+    if([ST.EXPIRED,ST.INVALIDATED].includes(s2.state))continue;
+    if(STATE_RANK[s2.state]>STATE_RANK[bestState]){
+      bestState=s2.state;bestConf=s2.confidence||0;bestSetup=s2;
+    }
+  }
+  st.stage=bestState;st.confidence=bestConf;st.setup=bestSetup;
+  if(bestSetup){
+    st.wall=bestSetup.wall||null;
+    st.side=bestSetup.side;st.zone=bestSetup.zone;
+    st.candidate=bestState===ST.FIRED;
+  }
+}
+function scanPriority(){if(!running)return;rebuildPriority();const q=nextQueue(),t=now();let budget=0;for(const s of q){const st=stateFor(s),age=t-st.lastEval,interval=priority.high.has(s)?CFG.ANALYSIS_BASE:priority.mid.has(s)?700:CFG.ANALYSIS_MAX;if(age>=interval){if(ENGINE==='V5')evaluateV5(s);else evaluateV4(s);st.lastEval=t;budget++;if(budget>=45)break}}if(ENGINE==='V5')trackPositions()}
+function stages(x){const flowOpp=x.side==='LONG'?x.flow?.sell||0:x.flow?.buy||0;return '<div class="stages"><span class="stage ok">4H ✓</span><span class="stage '+(x.zone?.tfs?.has('1H')?'ok':'warn')+'">1H '+(x.zone?.tfs?.has('1H')?'✓':'наблюдение')+'</span><span class="stage '+(x.zone?.tfs?.has('15M')?'ok':'warn')+'">15M '+(x.zone?.tfs?.has('15M')?'✓':'уточнение')+'</span><span class="stage ok">Wall 15s ✓</span><span class="stage '+(x.ret?.retest?'ok':'warn')+'">Retest '+(x.ret?.retest?'✓':'—')+'</span><span class="stage '+(x.sweep?.reclaimed?'ok':'warn')+'">Sweep '+(x.sweep?.reclaimed?'✓':'—')+'</span><span class="stage '+(x.ice?.hit?'ok':'warn')+'">Iceberg '+(x.ice?.hit?'✓':'—')+'</span><span class="stage '+((x.spike?.ratio||0)>=2?'ok':'warn')+'">RVOL '+(x.spike?.ratio||0).toFixed(1)+'x</span><span class="stage '+(flowOpp>0?'ok':'warn')+'">Поток '+fmt(flowOpp)+'</span><span class="stage '+((x.abs||0)>=10?'ok':'warn')+'">Абсорбция '+((x.abs||0).toFixed(0))+'%</span></div>'}
 function fmtPrice(v){if(!Number.isFinite(v))return '-';if(v>=100)return v.toFixed(2);if(v>=1)return v.toFixed(4);if(v>=.01)return v.toFixed(6);return v.toFixed(8)}
-function cardSignal(x){const cls=x.side==='LONG'?'long':'short';return '<div class="card '+cls+'"><div class="head"><div><span class="sym">'+x.symbol+'</span> <span class="side '+cls+'">'+x.side+'</span></div><span class="badge">Confidence: '+x.confidence+'/100</span></div><div class="grid"><div class="kv"><small>ВХОД</small><b>'+fmtPrice(x.entry)+'</b></div><div class="kv"><small>СТОП</small><b>'+fmtPrice(x.stop)+'</b></div><div class="kv"><small>ТЕЙК</small><b>'+fmtPrice(x.target)+'</b></div><div class="kv"><small>RR</small><b>'+x.rr.toFixed(1)+'</b></div></div>'+stages(x)+'<div class="foot">Regime: '+(x.regime?.type||'—')+' | Iceberg: '+(x.ice?.hit?'✓':'—')+' | Sweep: '+(x.sweep?.reclaimed?'✓':'—')+' | Retest: '+(x.ret?.retest?'✓':'—')+' | Stack: '+(x.stack?.count||0)+' уровней</div></div>'}
-function render(){const list=[...signals.values()].filter(x=>x.expires>now()).sort((a,b)=>b.ts-a.ts);$('cards').innerHTML=list.length?list.slice(0,CFG.MAX_CARDS).map(cardSignal).join(''):'<div class="empty">Нет ENTRY_READY. Система ждёт подтверждённый ретест.</div>';renderStats();renderDiag()}
-function renderDiag(){let stale=0,valid=0;for(const b of books.values()){if(b.valid)valid++;if(b.valid&&now()-b.last>CFG.BOOK_STALE)stale++}const errors=[...metrics.values()].filter(x=>x.error).length,hi=priority.high.size,mi=priority.mid.size,lo=priority.low.size,open=[...wsDiag.sockets.values()].filter(x=>x.ws?.readyState===1).length,age=wsDiag.lastMessageAt?Math.max(0,(now()-wsDiag.lastMessageAt)/1000):null,lock=newsLock(),lines=[];for(const m of wsDiag.sockets.values())lines.push('#'+(m.id+1)+' '+(m.ws?.readyState===1?'OPEN':'CLOSED')+' | SUB '+(m.subscribed?'OK':'…')+' | SNAP '+m.snapshots+' | Δ '+m.deltas+' | TR '+m.trades);$('diag').textContent='Режим: '+(mode==='watch'?'НАБЛЮДЕНИЕ':'ВХОД')+'\nМонет: '+coins.size+' | Стаканов: '+valid+' | Устарели: '+stale+' | REST errors: '+errors+'\nОчередь: HIGH '+hi+' | MID '+mi+' | LOW '+lo+'\nWS OPEN: '+open+'/'+wsDiag.expected+' | SUB OK: '+wsDiag.subscribed+' | SUB ERR: '+wsDiag.subErrors+'\nSNAPSHOT: '+wsDiag.snapshots+' | DELTA: '+wsDiag.deltas+' | TRADES: '+wsDiag.trades+' | MSG: '+wsDiag.messages+'\nWS ERR: '+wsDiag.errors+' | JSON ERR: '+wsDiag.parseErrors+' | RECONNECT: '+wsDiag.reconnects+(age===null?'':' | last data '+age.toFixed(1)+'s ago')+'\nState Machine: WAIT_WALL → WALL_CONFIRMED → FIRST_TOUCH → BOUNCE → RETEST → ENTRY_READY\nWall: 15s | retention ≥60% | Retest + Sweep + closed 1M required\nConfidence: HTF20 + Iceberg25 + Sweep15 + Flow15 + Reaction10 + RVOL10 + Wall5 + Stack bonus\nNews Lock: '+(lock?lock.name:'OFF / no configured events')+'\n'+(wsDiag.lastSubError?'Last SUB error: '+wsDiag.lastSubError+'\n':'')+(wsDiag.lastError?'Last WS error: '+wsDiag.lastError+'\n':'')+(wsDiag.lastClose?'Last close: '+wsDiag.lastClose+'\n':'')+'TOP refresh: 15 мин | REST retry/429: включён\n--- СОКЕТЫ ---\n'+lines.join('\n')}
-async function refreshTop(){if(!running)return;try{const ch=await loadCoins();const changed=ch.added.length||ch.removed.length;if(changed){for(const s of ch.removed){books.delete(s);trades.delete(s);zones.delete(s);states.delete(s);signals.delete(s)}connect();await loadAllHTF()}$('diag').textContent='TOP обновлён: '+new Date().toLocaleTimeString('ru-RU')+'\nTOP-200 | новых: '+ch.added.length+' | удалено: '+ch.removed.length;setStatus('TOP-200 обновлён | WebSocket и HTF синхронизированы')}catch(e){setStatus('Ошибка обновления TOP: '+e.message,false)}}
+function cardSignal(x){const cls=x.side==='LONG'?'long':'short';const seq=x.transitions?x.transitions.map(t=>t.state).join(' → '):'';return '<div class="card '+cls+'"><div class="head"><div><span class="sym">'+x.symbol+'</span> <span class="side '+cls+'">'+x.side+'</span></div><span class="badge">Confidence: '+x.confidence+'/100</span></div><div class="grid"><div class="kv"><small>ВХОД</small><b>'+fmtPrice(x.entry)+'</b></div><div class="kv"><small>СТОП (за sweep)</small><b>'+fmtPrice(x.stop)+'</b></div><div class="kv"><small>ТЕЙК</small><b>'+fmtPrice(x.target)+'</b></div><div class="kv"><small>RR</small><b>'+x.rr.toFixed(1)+'</b></div></div>'+stages(x)+(seq?'<div class="foot">FSM: '+seq+'</div>':'')+'<div class="foot">Regime: '+(x.regime?.type||x.regime||'—')+' | Sweep extr: '+fmtPrice(x.sweep?.extreme)+'</div></div>'}
+function render(){const list=[...signals.values()].filter(x=>x.expires>now()).sort((a,b)=>b.ts-a.ts);$('cards').innerHTML=list.length?list.slice(0,CFG.MAX_CARDS).map(cardSignal).join(''):'<div class="empty">Нет сигналов. V5 ждёт полную цепочку: HTF → Level → Sweep → Reclaim → Retest → Flow.</div>';renderStats();renderFunnel();renderDiag()}
+function renderDiag(){let stale=0,valid=0;for(const b of books.values()){if(b.valid)valid++;if(b.valid&&now()-b.last>CFG.BOOK_STALE)stale++}const errors=[...metrics.values()].filter(x=>x.error).length,hi=priority.high.size,mi=priority.mid.size,lo=priority.low.size,open=[...wsDiag.sockets.values()].filter(x=>x.ws?.readyState===1).length,age=wsDiag.lastMessageAt?Math.max(0,(now()-wsDiag.lastMessageAt)/1000):null,lock=newsLock(),active=[...setups.values()].filter(x=>![ST.FIRED,ST.EXPIRED,ST.INVALIDATED].includes(x.state)).length,lines=[];for(const m of wsDiag.sockets.values())lines.push('#'+(m.id+1)+' '+(m.ws?.readyState===1?'OPEN':'CLOSED')+' | SUB '+(m.subscribed?'OK':'…')+' | SNAP '+m.snapshots+' | Δ '+m.deltas+' | TR '+m.trades);$('diag').textContent='Режим: '+(mode==='watch'?'НАБЛЮДЕНИЕ':'ВХОД')+' | Движок: '+ENGINE+'\nМонет: '+coins.size+' | Стаканов: '+valid+' | Устарели: '+stale+' | REST errors: '+errors+'\nСетапы активных: '+active+' | Всего создано: '+funnel.created+' | Открытых позиций: '+openPositions.length+' | Лог: '+setupLog.length+'\nОчередь: HIGH '+hi+' | MID '+mi+' | LOW '+lo+'\nWS OPEN: '+open+'/'+wsDiag.expected+' | SUB OK: '+wsDiag.subscribed+' | SUB ERR: '+wsDiag.subErrors+'\nSNAPSHOT: '+wsDiag.snapshots+' | DELTA: '+wsDiag.deltas+' | TRADES: '+wsDiag.trades+' | MSG: '+wsDiag.messages+'\nWS ERR: '+wsDiag.errors+' | JSON ERR: '+wsDiag.parseErrors+' | RECONNECT: '+wsDiag.reconnects+(age===null?'':' | last data '+age.toFixed(1)+'s ago')+'\nFSM V5: HTF_OK → LEVEL_TOUCHED → SWEPT → RECLAIMED → RETEST_PENDING → RETEST_HELD → FLOW_OK → FIRED\nSL — за экстремум sweep | TP — следующая значимая ликвидность | TTL на каждое состояние\nNews Lock: '+(lock?lock.name:'OFF')+'\n'+(wsDiag.lastSubError?'Last SUB error: '+wsDiag.lastSubError+'\n':'')+(wsDiag.lastError?'Last WS error: '+wsDiag.lastError+'\n':'')+(wsDiag.lastClose?'Last close: '+wsDiag.lastClose+'\n':'')+'--- СОКЕТЫ ---\n'+lines.join('\n')}
+async function refreshTop(){if(!running)return;try{const ch=await loadCoins();const changed=ch.added.length||ch.removed.length;if(changed){for(const s of ch.removed){books.delete(s);trades.delete(s);zones.delete(s);states.delete(s);signals.delete(s);for(const[k,v]of setups)if(v.sym===s)setups.delete(k)}connect();await loadAllHTF()}$('diag').textContent='TOP обновлён: '+new Date().toLocaleTimeString('ru-RU')+'\nTOP-200 | новых: '+ch.added.length+' | удалено: '+ch.removed.length;setStatus('TOP-200 обновлён | WebSocket и HTF синхронизированы')}catch(e){setStatus('Ошибка обновления TOP: '+e.message,false)}}
 function startLoops(){clearInterval(scanTimer);clearInterval(renderTimer);clearInterval(topRefreshTimer);scanTimer=setInterval(scanPriority,150);renderTimer=setInterval(render,900);topRefreshTimer=setInterval(refreshTop,CFG.TOP_REFRESH)}
-async function start(){if(running)return;running=true;$('startBtn').classList.add('on');setStatus('Загрузка TOP-200 и HTF-зон…');try{await loadCoins();await loadAllHTF();connect();startLoops();rebuildPriority();setStatus('V4.1 запущен: State Machine + Retest + Sweep + Iceberg + RVOL');render()}catch(e){running=false;setStatus('Ошибка запуска: '+e.message,false);$('diag').textContent=e.stack||e.message}}
+async function start(){if(running)return;running=true;$('startBtn').classList.add('on');setStatus('Загрузка TOP-200 и HTF-зон…');try{await loadCoins();await loadAllHTF();connect();startLoops();rebuildPriority();setStatus('V5 запущен: FSM + журнал + воронка. Движок: '+ENGINE);render()}catch(e){running=false;setStatus('Ошибка запуска: '+e.message,false);$('diag').textContent=e.stack||e.message}}
 function stop(){running=false;clearInterval(scanTimer);clearInterval(renderTimer);clearInterval(topRefreshTimer);clearInterval(pingTimer);clearTimeout(reconnectTimer);closeSockets();setStatus('Остановлен',false);render()}
-function clearCards(){signals.clear();for(const st of states.values()){st.candidate=false;st.stage='WAIT_WALL'}$('cards').innerHTML='<div class="empty">Карточки очищены</div>';renderStats()}
-$('startBtn').onclick=start;$('stopBtn').onclick=stop;$('clearBtn').onclick=clearCards;$('watchBtn').onclick=()=>{mode='watch';$('watchBtn').classList.add('active');$('entryBtn').classList.remove('active');render()};$('entryBtn').onclick=()=>{mode='entry';$('entryBtn').classList.add('active');$('watchBtn').classList.remove('active');render()};window.addEventListener('beforeunload',stop);renderStats();
+function clearCards(){signals.clear();for(const st of states.values()){st.candidate=false;st.stage=ST.IDLE}$('cards').innerHTML='<div class="empty">Карточки очищены</div>';renderStats()}
+function resetFunnel(){funnel.created=funnel.htf_ok=funnel.level_touched=funnel.swept=funnel.reclaimed=funnel.retest_pending=funnel.retest_held=funnel.flow_ok=funnel.fired=funnel.expired=funnel.invalidated=0;funnel.veto={wall:0,rvol:0,rr:0,news:0,break:0};for(const k of Object.keys(funnel.veto))funnel.veto[k]=0;renderFunnel()}
+$('startBtn').onclick=start;$('stopBtn').onclick=stop;$('clearBtn').onclick=clearCards;$('exportBtn').onclick=exportCSV;$('funnelBtn').onclick=resetFunnel;
+$('watchBtn').onclick=()=>{mode='watch';$('watchBtn').classList.add('active');$('entryBtn').classList.remove('active');render()};
+$('entryBtn').onclick=()=>{mode='entry';$('entryBtn').classList.add('active');$('watchBtn').classList.remove('active');render()};
+$('engineV4').onclick=()=>{ENGINE='V4';$('engineV4').classList.add('active');$('engineV5').classList.remove('active');setStatus('Движок переключён на V4');render()};
+$('engineV5').onclick=()=>{ENGINE='V5';$('engineV5').classList.add('active');$('engineV4').classList.remove('active');setStatus('Движок переключён на V5 (FSM)');render()};
+window.addEventListener('beforeunload',stop);renderStats();renderFunnel();
 </script>
 </body>
 </html>
